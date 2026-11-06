@@ -555,6 +555,13 @@ INSERT IGNORE INTO site_content (content_key,label,content_group,content_type,co
 ('page_description_terms','Terms page SEO description','general','textarea','Read the TaskHaat worker, publisher, fee, wallet and prohibited-task rules.',1,281),
 ('terms_page_heading','Terms page heading','general','text','Terms of use',1,282),
 ('terms_page_intro','Terms page introduction','general','textarea','Plain-language product terms summary for this TaskHaat project build.',1,283);
+INSERT IGNORE INTO site_content (content_key,label,content_group,content_type,content_value,is_public,sort_order) VALUES
+('guide_worker_eyebrow','Worker guide eyebrow','general','text','Worker guide',1,241),
+('guide_worker_heading','Worker guide heading','general','text','Choose tasks carefully and submit clear proof',1,242),
+('guide_worker_intro','Worker guide introduction','general','textarea','Check the full task details before claiming a slot. The reward is credited only after the publisher approves your submission.',1,243),
+('guide_publisher_eyebrow','Publisher guide eyebrow','general','text','Publisher guide',1,244),
+('guide_publisher_heading','Publisher guide heading','general','text','Plan, fund and manage a multi-worker campaign',1,245),
+('guide_publisher_intro','Publisher guide introduction','general','textarea','A campaign lets multiple unique workers complete the same defined task. Clear instructions and fair proof criteria make reviews easier.',1,246);
 INSERT IGNORE INTO site_faqs (faq_group,category,question,answer,sort_order,is_active) VALUES
 ('home','General','Can multiple workers complete the same task?','Yes. A publisher sets the number of worker slots. Each worker claims one available slot and submits a separate proof. The same worker cannot claim the same campaign more than once.',10,1),
 ('home','General','When do workers receive rewards?','After a submission is approved, the configured platform fee is deducted and the net reward is credited to the worker''s Earned Wallet. The live platform will show the fee before work is claimed.',20,1),
