@@ -229,6 +229,30 @@ function upload_deposit_proof(array $file): ?array {
     ];
 }
 
+function site_content_value(PDO $pdo, string $key, string $default=''): string {
+    static $content = null;
+    if ($content === null) {
+        $content = [];
+        try {
+            $rows = $pdo->query('SELECT content_key,content_value FROM site_content WHERE is_public=1')->fetchAll();
+            foreach ($rows as $row) $content[(string)$row['content_key']] = (string)$row['content_value'];
+        } catch (Throwable) {
+            $content = [];
+        }
+    }
+    return array_key_exists($key, $content) ? $content[$key] : $default;
+}
+function site_faq_rows(PDO $pdo): array {
+    try { return $pdo->query('SELECT question,answer FROM site_faqs WHERE is_active=1 ORDER BY sort_order,id')->fetchAll(); }
+    catch (Throwable) { return []; }
+}
+function active_site_announcement(PDO $pdo): ?array {
+    try {
+        $st = $pdo->query("SELECT title,message,cta_label,cta_url,style FROM site_announcements WHERE is_active=1 AND (starts_at IS NULL OR starts_at<=NOW()) AND (ends_at IS NULL OR ends_at>=NOW()) ORDER BY sort_order,id DESC LIMIT 1");
+        $row = $st->fetch();
+        return $row ?: null;
+    } catch (Throwable) { return null; }
+}
 function display_datetime(?string $value): string { if(!$value)return '—'; try{return (new DateTime($value))->format('d M Y, h:i A');}catch(Throwable){return e($value);} }
 function status_pill(string $status): string {
     $map=['approved'=>'green','active'=>'green','completed'=>'green','paid'=>'green','pending'=>'amber','submitted'=>'amber','pending_review'=>'amber','rejected'=>'rose','cancelled'=>'gray','paused'=>'gray','claimed'=>'blue','processing'=>'blue'];
