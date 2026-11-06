@@ -209,4 +209,88 @@ $filter=(string)($_GET['filter']??'all');if(!in_array($filter,['all','unread'],t
 $q=substr(trim((string)($_GET['q']??'')),0,120);$entity=(string)($_GET['entity']??'all');if(!in_array($entity,['all','campaign','submission','user','withdrawal','wallet','settings','category','support_message'],true))$entity='all';[$from,$to]=$adminDateRange();$where=' WHERE 1=1';$params=[];if($entity!=='all'){$where.=' AND a.entity_type=?';$params[]=$entity;}if($q!==''){$where.=' AND (a.action LIKE ? OR a.entity_type LIKE ? OR CAST(a.meta_json AS CHAR) LIKE ? OR u.email LIKE ? OR CONCAT(u.first_name,\' \',u.last_name) LIKE ?)';foreach(range(1,5) as $_)$params[]='%'.$q.'%';}[$dateSql,$dateParams]=$adminDateWhere('a.created_at',$from,$to);$where.=$dateSql;$params=array_merge($params,$dateParams);$base=' FROM audit_logs a LEFT JOIN users u ON u.id=a.actor_id';[$rows,$total,$pages,$adminPage]=$adminQueryPage('SELECT COUNT(*)'.$base.$where,'SELECT a.*,CONCAT(u.first_name,\' \',u.last_name) actor_name,u.email actor_email'.$base.$where.' ORDER BY a.created_at DESC,a.id DESC',$params,$adminPage,$adminPerPage);$pager=$adminPager($adminPage,$pages,['q'=>$q,'entity'=>$entity,'from'=>$from,'to'=>$to]);
 ?>
 <section class="panel"><div class="panel-head"><div><span class="eyebrow">SECURITY & ACCOUNTABILITY</span><h3>Audit log</h3><p><?=number_format($total)?> matching events. Privileged actions are recorded with actor, entity, timestamp and metadata.</p></div></div><div class="panel-body"><form method="get" class="admin-filter-form"><input type="hidden" name="route" value="dashboard"><input type="hidden" name="tab" value="audit"><label class="admin-search"><i data-lucide="search"></i><input type="search" name="q" value="<?=e($q)?>" placeholder="Search action, actor, entity or metadata..."></label><select name="entity"><option value="all">All entities</option><?php foreach(['campaign','submission','user','withdrawal','wallet','settings','category','support_message'] as $v): ?><option value="<?=$v?>" <?=$entity===$v?'selected':''?>><?=e(ucfirst($v))?></option><?php endforeach; ?></select><div class="field"><label>From</label><input type="date" name="from" value="<?=e($from)?>"></div><div class="field"><label>To</label><input type="date" name="to" value="<?=e($to)?>"></div><button class="btn sm">Filter log</button><a class="btn sm secondary" href="<?=e($sideUrl('audit'))?>">Reset</a></form><div class="table-wrap"><table class="data-table admin-data-table"><thead><tr><th>Date</th><th>Actor</th><th>Action</th><th>Entity</th><th>Details</th><th>IP address</th></tr></thead><tbody><?php foreach($rows as $r): ?><tr><td><?=e(display_datetime($r['created_at']))?></td><td><?=e($r['actor_name']?:'System')?><small><?=e($r['actor_email']??'')?></small></td><td><strong><?=e($r['action'])?></strong></td><td><?=e($r['entity_type'])?> #<?=e($r['entity_id']??'—')?></td><td><code class="admin-meta-json"><?=e($r['meta_json']??'—')?></code></td><td><?=e($r['ip_address']??'—')?></td></tr><?php endforeach; if(!$rows): ?><tr><td colspan="6">No audit events match these filters.</td></tr><?php endif; ?></tbody></table></div><?=$pager?></div></section>
+
+<?php elseif($tab==='website'):
+$rows=$pdo->query("SELECT * FROM site_content ORDER BY FIELD(content_group,'branding','navigation','homepage','footer','general'),sort_order,label")->fetchAll();
+?>
+<section class="panel">
+ <div class="panel-head"><div><span class="eyebrow">CONTENT MANAGEMENT</span><h3>Website content</h3><p>Edit public copy and section visibility. Updates are stored in MySQL; no PHP edits are needed.</p></div></div>
+ <div class="panel-body">
+  <div class="table-wrap"><table class="data-table admin-data-table site-content-table">
+   <thead><tr><th>Content key</th><th>Label / group</th><th>Value</th><th>Public</th><th>Order</th><th>Actions</th></tr></thead>
+   <tbody>
+   <?php foreach($rows as $r): $formId='site-content-'.$r['id']; ?>
+    <tr>
+     <td><code><?=e($r['content_key'])?></code><small><?=e($r['content_type'])?></small><form id="<?=e($formId)?>" method="post"><?=csrf_field()?><input type="hidden" name="action" value="site_content_save"><input type="hidden" name="content_id" value="<?=$r['id']?>"><input type="hidden" name="content_key" value="<?=e($r['content_key'])?>"><input type="hidden" name="label" value="<?=e($r['label'])?>"><input type="hidden" name="content_group" value="<?=e($r['content_group'])?>"><input type="hidden" name="content_type" value="<?=e($r['content_type'])?>"></form></td>
+     <td><strong><?=e($r['label'])?></strong><small><?=e(ucfirst($r['content_group']))?></small></td>
+     <td>
+      <?php if($r['content_type']==='textarea'): ?><textarea form="<?=e($formId)?>" name="content_value" rows="3" maxlength="12000"><?=e($r['content_value'])?></textarea>
+      <?php elseif($r['content_type']==='boolean'): ?><select form="<?=e($formId)?>" name="content_value"><option value="1" <?=$r['content_value']==='1'?'selected':''?>>Visible / On</option><option value="0" <?=$r['content_value']==='0'?'selected':''?>>Hidden / Off</option></select>
+      <?php elseif($r['content_type']==='url'): ?><input form="<?=e($formId)?>" type="url" name="content_value" value="<?=e($r['content_value'])?>" maxlength="12000">
+      <?php else: ?><input form="<?=e($formId)?>" name="content_value" value="<?=e($r['content_value'])?>" maxlength="12000"><?php endif; ?>
+     </td>
+     <td><input form="<?=e($formId)?>" type="checkbox" name="is_public" value="1" <?=$r['is_public']?'checked':''?> aria-label="Public"></td>
+     <td><input form="<?=e($formId)?>" type="number" name="sort_order" value="<?=e($r['sort_order'])?>" min="-9999" max="9999" class="site-sort-input"></td>
+     <td><div class="admin-category-actions"><button form="<?=e($formId)?>" class="btn sm" type="submit">Save</button><form method="post"><?=csrf_field()?><input type="hidden" name="action" value="site_content_delete"><input type="hidden" name="content_id" value="<?=$r['id']?>"><button class="btn sm red" type="submit" data-confirm="Delete this content entry? The public site will use its default copy.">Delete</button></form></div></td>
+    </tr>
+   <?php endforeach; ?>
+   <?php if(!$rows): ?><tr><td colspan="6">No website content entries were found. Add one below.</td></tr><?php endif; ?>
+   </tbody>
+  </table></div>
+  <section class="site-cms-add"><h4>Add website content</h4><form method="post" class="site-cms-add-grid"><?=csrf_field()?><input type="hidden" name="action" value="site_content_save"><input type="hidden" name="content_id" value="0">
+   <label>Content key<input name="content_key" required pattern="[a-z0-9][a-z0-9_]{2,119}" placeholder="home_custom_text"></label>
+   <label>Label<input name="label" required minlength="2" maxlength="160" placeholder="Content label"></label>
+   <label>Group<select name="content_group"><option value="homepage">Homepage</option><option value="branding">Branding</option><option value="navigation">Navigation</option><option value="footer">Footer</option><option value="general">General</option></select></label>
+   <label>Type<select name="content_type"><option value="text">Short text</option><option value="textarea">Long text</option><option value="url">URL</option><option value="boolean">Visibility toggle</option></select></label>
+   <label class="site-cms-add-wide">Value<textarea name="content_value" rows="3" maxlength="12000"></textarea></label>
+   <label>Display order<input type="number" name="sort_order" value="200" min="-9999" max="9999"></label>
+   <label class="site-cms-checkbox"><input type="checkbox" name="is_public" value="1" checked> Public</label>
+   <button class="btn sm" type="submit">Create content entry</button>
+  </form></section>
+ </div>
+</section>
+
+<?php elseif($tab==='faqs'):
+$rows=$pdo->query('SELECT * FROM site_faqs ORDER BY sort_order,id')->fetchAll();
+?>
+<section class="panel"><div class="panel-head"><div><span class="eyebrow">PUBLIC FAQ</span><h3>FAQ manager</h3><p>Create, edit, reorder, publish or remove the questions displayed on the Homepage.</p></div></div><div class="panel-body">
+<div class="table-wrap"><table class="data-table admin-data-table"><thead><tr><th>Question / answer</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+<?php foreach($rows as $r): $formId='site-faq-'.$r['id']; ?>
+<tr>
+ <td><form id="<?=e($formId)?>" method="post"><?=csrf_field()?><input type="hidden" name="action" value="site_faq_save"><input type="hidden" name="faq_id" value="<?=$r['id']?>"><label>Question<input name="question" value="<?=e($r['question'])?>" required minlength="8" maxlength="255"></label><label>Answer<textarea name="answer" rows="3" required minlength="10" maxlength="5000"><?=e($r['answer'])?></textarea></label></td>
+ <td><input form="<?=e($formId)?>" type="number" name="sort_order" value="<?=e($r['sort_order'])?>" min="-9999" max="9999"></td>
+ <td><label class="site-cms-checkbox"><input form="<?=e($formId)?>" type="checkbox" name="is_active" value="1" <?=$r['is_active']?'checked':''?>> Active</label></td>
+ <td><div class="admin-category-actions"><button form="<?=e($formId)?>" class="btn sm" type="submit">Save</button><form method="post"><?=csrf_field()?><input type="hidden" name="action" value="site_faq_delete"><input type="hidden" name="faq_id" value="<?=$r['id']?>"><button class="btn sm red" type="submit" data-confirm="Delete this FAQ?">Delete</button></form></div></td>
+</tr>
+<?php endforeach; ?><?php if(!$rows): ?><tr><td colspan="4">No FAQs are configured yet.</td></tr><?php endif; ?>
+</tbody></table></div>
+<div class="site-cms-add"><h4>Add FAQ</h4><form method="post" class="site-faq-add-form"><?=csrf_field()?><input type="hidden" name="action" value="site_faq_save"><input type="hidden" name="faq_id" value="0"><label>Question<input name="question" required minlength="8" maxlength="255"></label><label>Answer<textarea name="answer" rows="3" required minlength="10" maxlength="5000"></textarea></label><label>Display order<input type="number" name="sort_order" value="100" min="-9999" max="9999"></label><label class="site-cms-checkbox"><input type="checkbox" name="is_active" value="1" checked> Active</label><button class="btn sm" type="submit">Add FAQ</button></form></div>
+</div></section>
+
+<?php elseif($tab==='announcements'):
+$rows=$pdo->query('SELECT * FROM site_announcements ORDER BY sort_order,id DESC')->fetchAll();
+?>
+<section class="panel"><div class="panel-head"><div><span class="eyebrow">SITE-WIDE MESSAGES</span><h3>Announcements</h3><p>Publish a scheduled notice at the top of the public site. Only active notices inside their schedule are visible.</p></div></div><div class="panel-body">
+<div class="site-announcement-admin-list">
+<?php foreach($rows as $r): ?>
+<article class="site-announcement-admin-card"><form method="post"><?=csrf_field()?><input type="hidden" name="action" value="site_announcement_save"><input type="hidden" name="announcement_id" value="<?=$r['id']?>"><div class="site-cms-add-grid">
+<label>Title<input name="title" value="<?=e($r['title'])?>" required maxlength="160"></label>
+<label>Style<select name="style"><?php foreach(['info','success','warning'] as $style): ?><option value="<?=$style?>" <?=$r['style']===$style?'selected':''?>><?=e(ucfirst($style))?></option><?php endforeach; ?></select></label>
+<label class="site-cms-add-wide">Message<textarea name="message" rows="2" required maxlength="1200"><?=e($r['message'])?></textarea></label>
+<label>Button label<input name="cta_label" value="<?=e($r['cta_label'])?>" maxlength="80"></label>
+<label>Button URL<input name="cta_url" value="<?=e($r['cta_url'])?>" maxlength="500"></label>
+<label>Starts at<input type="datetime-local" name="starts_at" value="<?=e($r['starts_at']?date('Y-m-d\TH:i',strtotime($r['starts_at'])):'')?>"></label>
+<label>Ends at<input type="datetime-local" name="ends_at" value="<?=e($r['ends_at']?date('Y-m-d\TH:i',strtotime($r['ends_at'])):'')?>"></label>
+<label>Display order<input type="number" name="sort_order" value="<?=e($r['sort_order'])?>" min="-9999" max="9999"></label>
+<label class="site-cms-checkbox"><input type="checkbox" name="is_active" value="1" <?=$r['is_active']?'checked':''?>> Active</label>
+</div><div class="admin-category-actions"><button class="btn sm" type="submit">Save announcement</button></form><form method="post"><?=csrf_field()?><input type="hidden" name="action" value="site_announcement_delete"><input type="hidden" name="announcement_id" value="<?=$r['id']?>"><button class="btn sm red" type="submit" data-confirm="Delete this announcement?">Delete</button></form></div></article>
+<?php endforeach; ?>
+<?php if(!$rows): ?><div class="empty-state">No announcements yet.</div><?php endif; ?>
+</div>
+<div class="site-cms-add"><h4>Create announcement</h4><form method="post" class="site-cms-add-grid"><?=csrf_field()?><input type="hidden" name="action" value="site_announcement_save"><input type="hidden" name="announcement_id" value="0">
+<label>Title<input name="title" required maxlength="160"></label><label>Style<select name="style"><option value="info">Info</option><option value="success">Success</option><option value="warning">Warning</option></select></label>
+<label class="site-cms-add-wide">Message<textarea name="message" rows="2" required maxlength="1200"></textarea></label><label>Button label<input name="cta_label" maxlength="80"></label><label>Button URL<input name="cta_url" maxlength="500"></label>
+<label>Starts at<input type="datetime-local" name="starts_at"></label><label>Ends at<input type="datetime-local" name="ends_at"></label><label>Display order<input type="number" name="sort_order" value="100" min="-9999" max="9999"></label><label class="site-cms-checkbox"><input type="checkbox" name="is_active" value="1"> Active</label>
+<button class="btn sm" type="submit">Create announcement</button></form></div>
+</div></section>
 <?php endif; ?>
