@@ -10,7 +10,7 @@ $tabs=[
  'admin'=>[['overview','layout-dashboard','Overview'],['moderation','shield-check','Task moderation'],['submissions','file-check','Submissions'],['users','users','Users'],['categories','tags','Categories'],['finance','wallet','Finance & withdrawals'],['reports','chart-no-axes-combined','Reports'],['support','inbox','Support inbox'],['settings','settings','Platform settings'],['notifications','bell','Notifications'],['audit','history','Audit log']]
 ];
 $labels=['worker'=>'Worker dashboard','publisher'=>'Publisher workspace','admin'=>'Admin control center'];
-$sideGroups=['worker'=>[['WORKSPACE',0,3],['MONEY',3,2],['ACCOUNT',5,1]],'publisher'=>[['WORKSPACE',0,4],['MONEY',4,2],['ACCOUNT',6,1]],'admin'=>[['ADMINISTRATION',0,5],['FINANCE',5,3],['SYSTEM',8,3]]];
+$sideGroups=['worker'=>[['WORKSPACE',0,3],['MONEY',3,2],['ACCOUNT',5,1]],'publisher'=>[['WORKSPACE',0,4],['MONEY',4,2],['ACCOUNT',6,1]],'admin'=>[['ADMINISTRATION',0,5],['FINANCE',5,3],['SYSTEM',8,6]]];
 $renderSubmission=function(array $s,bool $allowReview=false) use($pdo): void {
     $st=$pdo->prepare('SELECT * FROM submission_files WHERE submission_id=?');$st->execute([(int)$s['id']]);$files=$st->fetchAll();
     ?>

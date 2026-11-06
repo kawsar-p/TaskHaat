@@ -121,7 +121,7 @@ switch($route){
     case 'dashboard': {
         $user=require_login($pdo);$view='dashboard';$tab=(string)($_GET['tab']??'overview');
         if($user['user_type']==='admin')$workspace='admin';else{$requested=(string)($_GET['as']??'');$workspace=in_array($requested,['worker','publisher'],true)&&has_role($user,$requested)?$requested:(has_role($user,'worker')?'worker':'publisher');}
-        $allowedTabs=['worker'=>['overview','mytasks','submissions','wallet','notifications','profile'],'publisher'=>['overview','campaigns','create','edit','campaign_view','review','wallet','notifications','profile'],'admin'=>['overview','moderation','submissions','users','categories','finance','reports','support','settings','notifications','audit']];
+        $allowedTabs=['worker'=>['overview','mytasks','submissions','wallet','notifications','profile'],'publisher'=>['overview','campaigns','create','edit','campaign_view','review','wallet','notifications','profile'],'admin'=>['overview','moderation','submissions','users','categories','finance','reports','support','settings','notifications','audit','website','faqs','announcements']];
         if(!in_array($tab,$allowedTabs[$workspace],true))$tab='overview';
         $title=ucfirst($workspace).' workspace — TaskHaat';break;
     }
