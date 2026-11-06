@@ -2,11 +2,11 @@
 -- Safe to run in phpMyAdmin against the imported taskhaat database.
 -- This file only runs SELECT statements; it does not change data.
 
--- 1) Schema inventory: expected to show 16 tables.
+-- 1) Schema inventory: expected to show 19 tables.
 SELECT 'schema_table_count' AS check_name,
        COUNT(*) AS actual_value,
-       16 AS expected_value,
-       IF(COUNT(*) = 16, 'PASS', 'REVIEW') AS result
+       19 AS expected_value,
+       IF(COUNT(*) = 19, 'PASS', 'REVIEW') AS result
 FROM information_schema.TABLES
 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE';
 

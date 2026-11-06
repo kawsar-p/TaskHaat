@@ -28,8 +28,8 @@ $config = $read('config/config.php');
 
 preg_match_all('/CREATE\s+TABLE\s+`?([a-zA-Z0-9_]+)`?/i', $schema, $tableMatches);
 $tables = array_values(array_unique($tableMatches[1] ?? []));
-$assert(count($tables) === 16, 'Consolidated schema defines exactly 16 tables including manual deposit requests');
-$assert(substr_count(strtoupper($schema), 'ENGINE=INNODB') === 16, 'All 16 tables use InnoDB transactions');
+$assert(count($tables) === 19, 'Consolidated schema defines exactly 19 tables including website CMS tables');
+$assert(substr_count(strtoupper($schema), 'ENGINE=INNODB') === 19, 'All 16 tables use InnoDB transactions');
 $assert(str_contains($schema, 'uq_campaign_worker') && str_contains($schema, 'uq_submission_claim'), 'Campaign claims and submissions have uniqueness constraints');
 $assert(str_contains($schema, 'uq_wallet_idempotency'), 'Wallet ledger has an idempotency constraint');
 $assert(str_contains($schema, 'uq_deposit_reference_fingerprint') && str_contains($schema, 'fk_deposit_wallet_transaction'), 'Manual deposit references are unique and approved credits link to the wallet ledger');
@@ -117,3 +117,5 @@ $assert(count($missingDemo) === 0, 'Schema includes the seven documented demo ac
 $testCount = $checks;
 echo PHP_EOL . "{$testCount} source-level QA checks; {$failed} failed." . PHP_EOL;
 exit($failed === 0 ? 0 : 1);
+
+$assert(str_contains($schema, 'CREATE TABLE IF NOT EXISTS site_content') && str_contains($schema, 'CREATE TABLE IF NOT EXISTS site_faqs') && str_contains($schema, 'CREATE TABLE IF NOT EXISTS site_announcements'), 'Phase 10 CMS tables are present');

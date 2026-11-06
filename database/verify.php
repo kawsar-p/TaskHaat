@@ -82,7 +82,8 @@ $expectedTables = [
     'settings',
     'audit_logs',
     'support_messages',
-    'manual_deposit_requests'
+    'manual_deposit_requests',
+    'site_content','site_faqs','site_announcements'
 ];
 
 $st = $pdo->prepare("
@@ -101,8 +102,8 @@ $missingTables = array_values(
 );
 
 $checks[] = [
-    '16-table schema',
-    count($missingTables) === 0 && count($actualTables) === 16,
+    '19-table schema',
+    count($missingTables) === 0 && count($actualTables) === 19,
     $missingTables
     ? 'Missing: ' . implode(', ', $missingTables)
     : count($actualTables) . ' tables found'
