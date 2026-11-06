@@ -93,10 +93,59 @@ $q=substr(trim((string)($_GET['q']??'')),0,120);$role=(string)($_GET['role']??'a
 <section class="panel"><div class="panel-head"><div><span class="eyebrow">ACCOUNT SAFETY</span><h3>User management</h3><p><?=number_format($total)?> accounts match your current filters. Administrator accounts are protected.</p></div><span class="pill blue"><?=number_format($total)?> users</span></div><div class="panel-body"><form class="admin-filter-form" method="get"><input type="hidden" name="route" value="dashboard"><input type="hidden" name="tab" value="users"><label class="admin-search"><i data-lucide="search"></i><input type="search" name="q" value="<?=e($q)?>" placeholder="Name, email, phone or organization..."></label><select name="role"><option value="all">All roles</option><?php foreach(['worker'=>'Worker','publisher'=>'Publisher','both'=>'Worker & Publisher'] as $v=>$l): ?><option value="<?=$v?>" <?=$role===$v?'selected':''?>><?=$l?></option><?php endforeach; ?></select><select name="status"><option value="all">All statuses</option><option value="active" <?=$status==='active'?'selected':''?>>Active</option><option value="suspended" <?=$status==='suspended'?'selected':''?>>Suspended</option><option value="pending" <?=$status==='pending'?'selected':''?>>Pending</option></select><button class="btn sm">Apply filters</button><a class="btn sm secondary" href="<?=e($sideUrl('users'))?>">Reset</a></form><div class="table-wrap"><table class="data-table admin-data-table"><thead><tr><th>Account</th><th>Role</th><th>Location</th><th>Wallet balances</th><th>Joined</th><th>Status</th><th>Action</th></tr></thead><tbody><?php foreach($rows as $r): ?><tr><td><strong><?=e($r['first_name'].' '.$r['last_name'])?></strong><small><?=e($r['email'])?></small><small><?=e($r['phone']?:'No phone supplied')?></small></td><td><?=e(ucfirst($r['user_type']))?></td><td><?=e(trim(($r['city']??'').', '.($r['district']??''),', ')?:'—')?></td><td><small>Available <?=money($r['available_balance'])?></small><small>Deposit <?=money($r['deposit_balance'])?></small><small>Reserved <?=money($r['reserved_balance'])?></small><small>Withdrawal hold <?=money($r['withdrawal_hold_balance'])?></small></td><td><?=e(display_datetime($r['created_at']))?></td><td><?=status_pill($r['status'])?></td><td><?php if($r['status']==='active'): ?><form method="post"><?=csrf_field()?><input type="hidden" name="action" value="admin_toggle_user"><input type="hidden" name="user_id" value="<?=$r['id']?>"><input type="hidden" name="status" value="suspended"><button class="btn sm red" data-confirm="Suspend this account? Its approved campaigns will be paused.">Suspend</button></form><?php else: ?><form method="post"><?=csrf_field()?><input type="hidden" name="action" value="admin_toggle_user"><input type="hidden" name="user_id" value="<?=$r['id']?>"><input type="hidden" name="status" value="active"><button class="btn sm green">Reactivate</button></form><?php endif; ?></td></tr><?php endforeach; ?><?php if(!$rows): ?><tr><td colspan="7">No users match these filters.</td></tr><?php endif; ?></tbody></table></div><?=$pager?></div></section>
 
 <?php elseif($tab==='categories'):
-$rows=$pdo->query('SELECT cat.*,COUNT(c.id) campaign_count FROM categories cat LEFT JOIN campaigns c ON c.category_id=cat.id GROUP BY cat.id ORDER BY cat.name')->fetchAll();
+$q=substr(trim((string)($_GET['q']??'')),0,100);
+$where='';$params=[];
+if($q!==''){$where=' WHERE cat.name LIKE ? OR cat.slug LIKE ? OR cat.description LIKE ?';$params=['%'.$q.'%','%'.$q.'%','%'.$q.'%'];}
+$st=$pdo->prepare('SELECT cat.*,COUNT(c.id) campaign_count FROM categories cat LEFT JOIN campaigns c ON c.category_id=cat.id'.$where.' GROUP BY cat.id ORDER BY cat.name');
+$st->execute($params);$rows=$st->fetchAll();
 ?>
-<section class="panel"><div class="panel-head"><div><span class="eyebrow">MARKETPLACE TAXONOMY</span><h3>Category management</h3><p>Edit names and descriptions or deactivate categories to stop new campaigns using them. Existing campaigns remain linked.</p></div></div><div class="panel-body"><div class="admin-category-list"><?php foreach($rows as $c): ?><article class="admin-category-card"><form method="post" class="admin-category-form"><?=csrf_field()?><input type="hidden" name="action" value="admin_update_category"><input type="hidden" name="category_id" value="<?=$c['id']?>"><div class="field"><label>Category name</label><input name="name" value="<?=e($c['name'])?>" required minlength="3" maxlength="100"></div><div class="field"><label>Slug</label><input name="slug" value="<?=e($c['slug'])?>" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" maxlength="120"></div><div class="field"><label>Description</label><input name="description" value="<?=e($c['description'])?>" maxlength="255"></div><div class="admin-category-meta"><span><?=number_format((int)$c['campaign_count'])?> linked campaigns</span><?=((int)$c['is_active']===1)?'<span class="pill green">Active</span>':'<span class="pill gray">Inactive</span>'?></div><div class="admin-category-actions"><button class="btn sm">Save changes</button></form><form method="post"><?=csrf_field()?><input type="hidden" name="action" value="admin_toggle_category"><input type="hidden" name="category_id" value="<?=$c['id']?>"><input type="hidden" name="is_active" value="<?=((int)$c['is_active']===1)?'0':'1'?>"><button class="btn sm <?=((int)$c['is_active']===1)?'secondary':'green'?>"><?=((int)$c['is_active']===1)?'Deactivate':'Activate'?></button></form></div></article><?php endforeach; ?></div>
-<div class="admin-create-category"><h4>Add a category</h4><form method="post" class="admin-filter-form"><?=csrf_field()?><input type="hidden" name="action" value="admin_add_category"><input name="name" required minlength="3" maxlength="100" placeholder="Category name"><input name="description" maxlength="255" placeholder="Short description"><button class="btn sm">Add category</button></form></div></div></section>
+<section class="panel">
+ <div class="panel-head"><div><span class="eyebrow">MARKETPLACE TAXONOMY</span><h3>Category management</h3><p>Manage all task categories in one table. Categories linked to campaigns cannot be permanently deleted; deactivate them instead.</p></div></div>
+ <div class="panel-body">
+  <form method="get" class="admin-filter-form">
+   <input type="hidden" name="route" value="dashboard"><input type="hidden" name="tab" value="categories"><input type="hidden" name="as" value="admin">
+   <label class="admin-search"><i data-lucide="search"></i><input type="search" name="q" value="<?=e($q)?>" placeholder="Search category name, slug or description"></label>
+   <button class="btn sm" type="submit">Search</button><a class="btn sm secondary" href="<?=e($sideUrl('categories'))?>">Reset</a>
+  </form>
+  <div class="table-wrap">
+   <table class="data-table admin-data-table admin-category-table">
+    <thead><tr><th>Category</th><th>Slug</th><th>Description</th><th>Campaigns</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+     <?php foreach($rows as $c): ?>
+      <tr>
+       <td><strong><?=e($c['name'])?></strong><small>#<?=number_format((int)$c['id'])?></small></td>
+       <td><code><?=e($c['slug'])?></code></td>
+       <td><?=e($c['description']?:'—')?></td>
+       <td><?=number_format((int)$c['campaign_count'])?></td>
+       <td><?=((int)$c['is_active']===1)?'<span class="pill green">Active</span>':'<span class="pill gray">Inactive</span>'?></td>
+       <td>
+        <div class="admin-category-actions">
+         <details class="admin-category-edit">
+          <summary class="btn sm secondary"><i data-lucide="pencil"></i> Edit</summary>
+          <form method="post" class="admin-category-edit-form">
+           <?=csrf_field()?><input type="hidden" name="action" value="admin_update_category"><input type="hidden" name="category_id" value="<?=$c['id']?>">
+           <label><span>Category name</span><input name="name" value="<?=e($c['name'])?>" required minlength="3" maxlength="100"></label>
+           <label><span>Slug</span><input name="slug" value="<?=e($c['slug'])?>" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" maxlength="120"></label>
+           <label class="admin-category-edit-wide"><span>Description</span><input name="description" value="<?=e($c['description'])?>" maxlength="255"></label>
+           <button class="btn sm" type="submit">Save changes</button>
+          </form>
+         </details>
+         <form method="post"><?=csrf_field()?><input type="hidden" name="action" value="admin_toggle_category"><input type="hidden" name="category_id" value="<?=$c['id']?>"><input type="hidden" name="is_active" value="<?=((int)$c['is_active']===1)?'0':'1'?>"><button class="btn sm <?=((int)$c['is_active']===1)?'secondary':'green'?>" type="submit"><?=((int)$c['is_active']===1)?'Deactivate':'Activate'?></button></form>
+         <form method="post"><?=csrf_field()?><input type="hidden" name="action" value="admin_delete_category"><input type="hidden" name="category_id" value="<?=$c['id']?>"><button class="btn sm red" type="submit" data-confirm="Permanently delete this category? This cannot be undone." <?=((int)$c['campaign_count']>0)?'disabled title="Linked campaigns exist; deactivate instead."':''?>>Delete</button></form>
+        </div>
+       </td>
+      </tr>
+     <?php endforeach; ?>
+     <?php if(!$rows): ?><tr><td colspan="6">No categories match this search.</td></tr><?php endif; ?>
+    </tbody>
+   </table>
+  </div>
+  <div class="admin-create-category">
+   <h4>Add a category</h4>
+   <form method="post" class="admin-filter-form"><?=csrf_field()?><input type="hidden" name="action" value="admin_add_category"><input name="name" required minlength="3" maxlength="100" placeholder="Category name"><input name="description" maxlength="255" placeholder="Short description"><button class="btn sm" type="submit"><i data-lucide="plus"></i> Add category</button></form>
+  </div>
+ </div>
+</section>
 
 <?php elseif($tab==='finance'):
 $filter=(string)($_GET['filter']??'pending');if(!in_array($filter,['pending','approved','processing','paid','rejected','all'],true))$filter='pending';$q=substr(trim((string)($_GET['q']??'')),0,120);$where=' WHERE 1=1';$params=[];if($filter!=='all'){$where.=' AND wd.status=?';$params[]=$filter;}if($q!==''){$where.=' AND (u.email LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ? OR wd.payment_reference LIKE ? OR wd.account_reference_last4 LIKE ? OR (wd.account_reference NOT LIKE \'enc:v1:%\' AND wd.account_reference LIKE ?))';foreach(range(1,6) as $_)$params[]='%'.$q.'%';}$base=' FROM withdrawals wd JOIN users u ON u.id=wd.user_id';[$rows,$total,$pages,$adminPage]=$adminQueryPage('SELECT COUNT(*)'.$base.$where,'SELECT wd.*,CONCAT(u.first_name,\' \',u.last_name) worker_name,u.email'.$base.$where.' ORDER BY CASE WHEN wd.status=\'pending\' THEN 0 WHEN wd.status=\'processing\' THEN 1 ELSE 2 END,wd.created_at ASC',$params,$adminPage,$adminPerPage);$pager=$adminPager($adminPage,$pages,['filter'=>$filter,'q'=>$q]);

@@ -512,6 +512,18 @@ function process_post(PDO $pdo): void {
                 $st=$pdo->prepare('SELECT id FROM categories WHERE slug=? AND id<>?');$st->execute([$slug,$id]);if($st->fetch())throw new RuntimeException('That category slug is already in use.');
                 $pdo->beginTransaction();$pdo->prepare('UPDATE categories SET name=?,slug=?,description=? WHERE id=?')->execute([$name,$slug,$desc!==''?$desc:null,$id]);audit($pdo,(int)$admin['id'],'category.updated','category',$id,['name'=>$name,'slug'=>$slug]);$pdo->commit();flash('success','Category updated.');redirect('dashboard',['tab'=>'categories']);
             }
+            case 'admin_delete_category': {
+                $admin=require_role($pdo,'admin');$id=(int)($_POST['category_id']??0);
+                if($id<1)throw new RuntimeException('Select a valid category.');
+                $pdo->beginTransaction();
+                $st=$pdo->prepare('SELECT id,name,slug FROM categories WHERE id=? FOR UPDATE');$st->execute([$id]);$category=$st->fetch();
+                if(!$category)throw new RuntimeException('Category not found.');
+                $st=$pdo->prepare('SELECT COUNT(*) FROM campaigns WHERE category_id=?');$st->execute([$id]);$campaignCount=(int)$st->fetchColumn();
+                if($campaignCount>0)throw new RuntimeException('This category is linked to '.$campaignCount.' campaign(s). Deactivate it instead of deleting it.');
+                $pdo->prepare('DELETE FROM categories WHERE id=?')->execute([$id]);
+                audit($pdo,(int)$admin['id'],'category.deleted','category',$id,['name'=>$category['name'],'slug'=>$category['slug']]);
+                $pdo->commit();flash('success','Category permanently deleted.');redirect('dashboard',['tab'=>'categories']);
+            }
             case 'admin_toggle_category': {
                 $admin=require_role($pdo,'admin');$id=(int)($_POST['category_id']??0);$active=(int)($_POST['is_active']??-1);if($id<1||!in_array($active,[0,1],true))throw new RuntimeException('Invalid category status.');
                 $st=$pdo->prepare('SELECT name,is_active FROM categories WHERE id=?');$st->execute([$id]);$category=$st->fetch();if(!$category)throw new RuntimeException('Category not found.');

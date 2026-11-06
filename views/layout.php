@@ -4,6 +4,8 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#00CEC8"><title><?=e($title)?></title>
+<link rel="icon" type="image/svg+xml" href="<?=e(asset_url('assets/favicon.svg'))?>">
+<script>(()=>{try{const saved=localStorage.getItem('taskhaat-theme');if(saved==='dark'||saved==='light')document.documentElement.dataset.theme=saved;}catch(_){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?=e(asset_url('assets/css/taskhaat.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/manual-payments.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/app.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/dashboard.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/reference-theme.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/section-pages.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/worker-workspace.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/publisher-workspace.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/admin-workspace.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/site-experience.css'))?>">
@@ -15,6 +17,10 @@
 <?php foreach($flashes as $f): ?><div class="container flash-wrap"><div class="flash <?=e($f['type'])?>"><?=e($f['message'])?></div></div><?php endforeach; ?>
 <?php require __DIR__.'/'.$view.'.php'; ?>
 </main>
+<div class="scroll-controls" aria-label="Page scroll controls">
+  <button class="scroll-control" id="scrollToTop" type="button" aria-label="Scroll to top" title="Go to top" hidden><i data-lucide="arrow-up"></i></button>
+  <button class="scroll-control" id="scrollToBottom" type="button" aria-label="Scroll to bottom" title="Go to bottom" hidden><i data-lucide="arrow-down"></i></button>
+</div>
 <?php if(!$isAuthPage) require __DIR__.'/partials/footer.php'; ?>
 <script src="<?=e(asset_url('assets/js/app.js'))?>" defer></script>
 </body></html>

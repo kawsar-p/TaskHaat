@@ -5,6 +5,42 @@
   iconify();
 
   const html = document.documentElement;
+
+  // Keep the reader at the same position after a manual browser refresh.
+  // Normal link navigation and Back/Forward keep their native browser behaviour.
+  const scrollStorageKey = 'taskhaat-scroll:' + location.pathname + location.search;
+  const navInfo = performance.getEntriesByType?.('navigation')?.[0];
+  let refreshScrollY = null;
+  try {
+    if (navInfo?.type === 'reload') {
+      const storedPosition = sessionStorage.getItem(scrollStorageKey);
+      if (storedPosition !== null && Number.isFinite(Number(storedPosition))) {
+        refreshScrollY = Math.max(0, Number(storedPosition));
+        history.scrollRestoration = 'manual';
+      }
+    }
+  } catch (_) { /* Storage can be unavailable in restricted browser contexts. */ }
+
+  window.addEventListener('pagehide', () => {
+    try { sessionStorage.setItem(scrollStorageKey, String(window.scrollY || 0)); }
+    catch (_) { /* Keep page navigation working when storage is disabled. */ }
+  });
+
+  const restoreRefreshPosition = () => {
+    if (refreshScrollY === null) return;
+    const restore = () => {
+      const maximum = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      window.scrollTo(0, Math.min(refreshScrollY, maximum));
+    };
+    requestAnimationFrame(() => requestAnimationFrame(restore));
+    // A second instant correction covers late font/image layout without animated jumping.
+    window.setTimeout(restore, 120);
+    try { sessionStorage.removeItem(scrollStorageKey); } catch (_) {}
+    refreshScrollY = null;
+  };
+  if (document.readyState === 'complete') restoreRefreshPosition();
+  else window.addEventListener('load', restoreRefreshPosition, {once:true});
+
   const savedTheme = localStorage.getItem('taskhaat-theme');
   if (savedTheme === 'dark' || savedTheme === 'light') html.dataset.theme = savedTheme;
   const themeButton = $('#themeToggle');
@@ -19,6 +55,35 @@
     localStorage.setItem('taskhaat-theme', html.dataset.theme);
     updateThemeIcon();
   });
+
+  // Smooth page navigation; respect the visitor's reduced-motion preference.
+  const scrollTopButton = $('#scrollToTop');
+  const scrollBottomButton = $('#scrollToBottom');
+  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  const updateScrollControls = () => {
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const current = window.scrollY || document.documentElement.scrollTop || 0;
+    if (scrollTopButton) scrollTopButton.hidden = current < 220;
+    if (scrollBottomButton) scrollBottomButton.hidden = maxScroll < 220 || current >= maxScroll - 140;
+  };
+  const requestScrollControlUpdate = () => {
+    if (requestScrollControlUpdate.pending) return;
+    requestScrollControlUpdate.pending = true;
+    requestAnimationFrame(() => {
+      requestScrollControlUpdate.pending = false;
+      updateScrollControls();
+    });
+  };
+  scrollTopButton?.addEventListener('click', () => {
+    window.scrollTo({top:0,left:0,behavior:reducedMotion?'auto':'smooth'});
+  });
+  scrollBottomButton?.addEventListener('click', () => {
+    window.scrollTo({top:document.documentElement.scrollHeight,left:0,behavior:reducedMotion?'auto':'smooth'});
+  });
+  window.addEventListener('scroll', requestScrollControlUpdate, {passive:true});
+  window.addEventListener('resize', requestScrollControlUpdate, {passive:true});
+  window.addEventListener('load', requestScrollControlUpdate, {once:true});
+  updateScrollControls();
 
   const mobileMenu = $('#mobileMenu');
   const navLinks = $('#navLinks');
