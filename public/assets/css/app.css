@@ -24,3 +24,36 @@ html[data-theme="dark"] .scroll-control{background:#1C302E;border-color:#36514D;
 html[data-theme="dark"] .scroll-control:hover{background:#00CEC8;border-color:#00CEC8;color:#123332}
 @media(max-width:600px){.scroll-controls{right:12px;bottom:14px;gap:6px}.scroll-control{width:38px;height:38px}}
 @media(prefers-reduced-motion:reduce){.scroll-control{transition:none}.scroll-control:hover{transform:none}}
+
+
+/* Admin website-management editor */
+.site-content-table{min-width:1100px}
+.site-content-table td{vertical-align:middle}
+.site-content-table td strong{display:block;color:#263633}
+.site-content-table td small{display:block;color:#87938F;font-size:8px;margin-top:3px}
+.site-content-table td code{font-size:9px;color:#007D79;white-space:normal;overflow-wrap:anywhere}
+.site-content-table input:not([type=checkbox]),.site-content-table select,.site-content-table textarea{width:100%;min-width:130px;padding:7px 8px;border:1px solid #DCE5E1;background:#fff;color:#202B2B;font:inherit;font-size:10px}
+.site-content-table textarea{min-width:210px;min-height:60px;resize:vertical}
+.site-content-table input[type=checkbox]{width:16px;height:16px;accent-color:#00A9A3}
+.site-content-table .site-sort-input{width:65px;min-width:65px}
+.site-cms-add{margin-top:20px;padding:16px;border:1px solid #DCE5E1;background:#FCFEFD}
+.site-cms-add h4{margin:0 0 13px;font:800 13px Manrope;color:#202B2B}
+.site-cms-add-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.site-cms-add-grid label{display:grid;gap:5px;min-width:0;font-size:9px;font-weight:700;color:#596765}
+.site-cms-add-grid input,.site-cms-add-grid select,.site-cms-add-grid textarea{width:100%;min-width:0;padding:8px;border:1px solid #DCE5E1;background:#fff;color:#202B2B;font:inherit;font-size:10px}
+.site-cms-add-wide{grid-column:1/-1}
+.site-cms-checkbox{display:flex!important;align-items:center;gap:7px;align-self:end}
+.site-cms-checkbox input{width:16px;height:16px;accent-color:#00A9A3}
+.site-cms-add-grid>.btn{justify-self:start;align-self:end}
+.site-faq-add-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.site-faq-add-form label{display:grid;gap:5px;font-size:9px;font-weight:700}
+.site-faq-add-form input,.site-faq-add-form textarea{width:100%;padding:8px;border:1px solid #DCE5E1;background:#fff;color:#202B2B;font:inherit;font-size:10px}
+.site-announcement-admin-list{display:grid;gap:12px}
+.site-announcement-admin-card{padding:14px;border:1px solid #E4E9E6;background:#fff}
+.site-announcement-admin-card .site-cms-add-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.site-announcement-admin-card .admin-category-actions{margin-top:10px}
+html[data-theme="dark"] .site-cms-add,html[data-theme="dark"] .site-announcement-admin-card{background:#1C302E;border-color:#36514D}
+html[data-theme="dark"] .site-cms-add h4,html[data-theme="dark"] .site-cms-add-grid label,html[data-theme="dark"] .site-faq-add-form label{color:#C1D2D0}
+html[data-theme="dark"] .site-cms-add-grid input,html[data-theme="dark"] .site-cms-add-grid select,html[data-theme="dark"] .site-cms-add-grid textarea,html[data-theme="dark"] .site-faq-add-form input,html[data-theme="dark"] .site-faq-add-form textarea,html[data-theme="dark"] .site-content-table input:not([type=checkbox]),html[data-theme="dark"] .site-content-table select,html[data-theme="dark"] .site-content-table textarea{background:#172A28;color:#F1F7F6;border-color:#47746A}
+@media(max-width:900px){.site-cms-add-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.site-cms-add-grid,.site-faq-add-form,.site-announcement-admin-card .site-cms-add-grid{grid-template-columns:1fr}.site-cms-add-wide{grid-column:auto}}
