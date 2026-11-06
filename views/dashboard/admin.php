@@ -254,17 +254,18 @@ $rows=$pdo->query("SELECT * FROM site_content ORDER BY FIELD(content_group,'bran
 $rows=$pdo->query('SELECT * FROM site_faqs ORDER BY sort_order,id')->fetchAll();
 ?>
 <section class="panel"><div class="panel-head"><div><span class="eyebrow">PUBLIC FAQ</span><h3>FAQ manager</h3><p>Create, edit, reorder, publish or remove the questions displayed on the Homepage.</p></div></div><div class="panel-body">
-<div class="table-wrap"><table class="data-table admin-data-table"><thead><tr><th>Question / answer</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+<div class="table-wrap"><table class="data-table admin-data-table"><thead><tr><th>Question / answer</th><th>Group / category</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead><tbody>
 <?php foreach($rows as $r): $formId='site-faq-'.$r['id']; ?>
 <tr>
  <td><form id="<?=e($formId)?>" method="post"><?=csrf_field()?><input type="hidden" name="action" value="site_faq_save"><input type="hidden" name="faq_id" value="<?=$r['id']?>"><label>Question<input name="question" value="<?=e($r['question'])?>" required minlength="8" maxlength="255"></label><label>Answer<textarea name="answer" rows="3" required minlength="10" maxlength="5000"><?=e($r['answer'])?></textarea></label></form></td>
+ <td><label class="site-inline-label">Group<select form="<?=e($formId)?>" name="faq_group"><option value="home" <?=$r['faq_group']==='home'?'selected':''?>>Homepage</option><option value="help" <?=$r['faq_group']==='help'?'selected':''?>>Help Center</option></select></label><label class="site-inline-label">Category<input form="<?=e($formId)?>" name="category" value="<?=e($r['category'])?>" required minlength="2" maxlength="80"></label></td>
  <td><input form="<?=e($formId)?>" type="number" name="sort_order" value="<?=e($r['sort_order'])?>" min="-9999" max="9999"></td>
  <td><label class="site-cms-checkbox"><input form="<?=e($formId)?>" type="checkbox" name="is_active" value="1" <?=$r['is_active']?'checked':''?>> Active</label></td>
  <td><div class="admin-category-actions"><button form="<?=e($formId)?>" class="btn sm" type="submit">Save</button><form method="post"><?=csrf_field()?><input type="hidden" name="action" value="site_faq_delete"><input type="hidden" name="faq_id" value="<?=$r['id']?>"><button class="btn sm red" type="submit" data-confirm="Delete this FAQ?">Delete</button></form></div></td>
 </tr>
-<?php endforeach; ?><?php if(!$rows): ?><tr><td colspan="4">No FAQs are configured yet.</td></tr><?php endif; ?>
+<?php endforeach; ?><?php if(!$rows): ?><tr><td colspan="5">No FAQs are configured yet.</td></tr><?php endif; ?>
 </tbody></table></div>
-<div class="site-cms-add"><h4>Add FAQ</h4><form method="post" class="site-faq-add-form"><?=csrf_field()?><input type="hidden" name="action" value="site_faq_save"><input type="hidden" name="faq_id" value="0"><label>Question<input name="question" required minlength="8" maxlength="255"></label><label>Answer<textarea name="answer" rows="3" required minlength="10" maxlength="5000"></textarea></label><label>Display order<input type="number" name="sort_order" value="100" min="-9999" max="9999"></label><label class="site-cms-checkbox"><input type="checkbox" name="is_active" value="1" checked> Active</label><button class="btn sm" type="submit">Add FAQ</button></form></div>
+<div class="site-cms-add"><h4>Add FAQ</h4><form method="post" class="site-faq-add-form"><?=csrf_field()?><input type="hidden" name="action" value="site_faq_save"><input type="hidden" name="faq_id" value="0"><label>Group<select name="faq_group"><option value="home">Homepage FAQ</option><option value="help">Help Center FAQ</option></select></label><label>Category<input name="category" value="General" required minlength="2" maxlength="80"></label><label>Question<input name="question" required minlength="8" maxlength="255"></label><label>Answer<textarea name="answer" rows="3" required minlength="10" maxlength="5000"></textarea></label><label>Display order<input type="number" name="sort_order" value="100" min="-9999" max="9999"></label><label class="site-cms-checkbox"><input type="checkbox" name="is_active" value="1" checked> Active</label><button class="btn sm" type="submit">Add FAQ</button></form></div>
 </div></section>
 
 <?php elseif($tab==='announcements'):

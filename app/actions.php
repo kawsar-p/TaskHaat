@@ -607,20 +607,23 @@ function process_post(PDO $pdo): void {
             case 'site_faq_save': {
                 $admin=require_role($pdo,'admin');$id=(int)($_POST['faq_id']??0);
                 $question=trim((string)($_POST['question']??''));$answer=trim((string)($_POST['answer']??''));
+                $faqGroup=(string)($_POST['faq_group']??'home');$category=trim((string)($_POST['category']??'General'));
                 $sort=(int)($_POST['sort_order']??0);$active=isset($_POST['is_active'])?1:0;
+                if(!in_array($faqGroup,['home','help'],true))throw new RuntimeException('Choose Homepage FAQ or Help Center FAQ.');
+                if(text_length($category)<2||text_length($category)>80)throw new RuntimeException('FAQ category must contain 2–80 characters.');
                 if(text_length($question)<8||text_length($question)>255)throw new RuntimeException('FAQ question must contain 8–255 characters.');
                 if(text_length($answer)<10||text_length($answer)>5000)throw new RuntimeException('FAQ answer must contain 10–5,000 characters.');
                 if($sort < -9999 || $sort > 9999)throw new RuntimeException('FAQ display order must be between -9,999 and 9,999.');
                 $pdo->beginTransaction();
                 if($id>0){
                     $st=$pdo->prepare('SELECT id FROM site_faqs WHERE id=? FOR UPDATE');$st->execute([$id]);if(!$st->fetch())throw new RuntimeException('FAQ not found.');
-                    $pdo->prepare('UPDATE site_faqs SET question=?,answer=?,sort_order=?,is_active=?,updated_by=? WHERE id=?')->execute([$question,$answer,$sort,$active,(int)$admin['id'],$id]);
+                    $pdo->prepare('UPDATE site_faqs SET faq_group=?,category=?,question=?,answer=?,sort_order=?,is_active=?,updated_by=? WHERE id=?')->execute([$faqGroup,$category,$question,$answer,$sort,$active,(int)$admin['id'],$id]);
                     $entityId=$id;$event='site_faq.updated';
                 }else{
-                    $pdo->prepare('INSERT INTO site_faqs(question,answer,sort_order,is_active,updated_by) VALUES(?,?,?,?,?)')->execute([$question,$answer,$sort,$active,(int)$admin['id']]);
+                    $pdo->prepare('INSERT INTO site_faqs(faq_group,category,question,answer,sort_order,is_active,updated_by) VALUES(?,?,?,?,?,?,?)')->execute([$faqGroup,$category,$question,$answer,$sort,$active,(int)$admin['id']]);
                     $entityId=(int)$pdo->lastInsertId();$event='site_faq.created';
                 }
-                audit($pdo,(int)$admin['id'],$event,'site_faq',$entityId,['is_active'=>$active]);
+                audit($pdo,(int)$admin['id'],$event,'site_faq',$entityId,['is_active'=>$active,'faq_group'=>$faqGroup,'category'=>$category]);
                 $pdo->commit();flash('success','FAQ saved.');redirect('dashboard',['tab'=>'faqs']);
             }
             case 'site_faq_delete': {

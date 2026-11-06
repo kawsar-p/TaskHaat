@@ -242,9 +242,15 @@ function site_content_value(PDO $pdo, string $key, string $default=''): string {
     }
     return array_key_exists($key, $content) ? $content[$key] : $default;
 }
-function site_faq_rows(PDO $pdo): array {
-    try { return $pdo->query('SELECT question,answer FROM site_faqs WHERE is_active=1 ORDER BY sort_order,id')->fetchAll(); }
-    catch (Throwable) { return []; }
+function site_faq_rows(PDO $pdo, string $group='home'): array {
+    if (!in_array($group, ['home','help'], true)) return [];
+    try {
+        $st=$pdo->prepare('SELECT question,answer,category FROM site_faqs WHERE faq_group=? AND is_active=1 ORDER BY sort_order,id');
+        $st->execute([$group]);
+        return $st->fetchAll();
+    } catch (Throwable) {
+        return [];
+    }
 }
 function active_site_announcement(PDO $pdo): ?array {
     try {

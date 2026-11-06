@@ -1,5 +1,6 @@
 <?php
-$helpFaqs=[
+$helpFaqs=site_faq_rows($pdo,'help');
+if(!$helpFaqs){$helpFaqs=[
  ['Getting started','How do I create a TaskHaat account?','Choose Get started, enter your personal details, select Worker, Publisher or Both, accept the platform rules and create your account. Use an email address you can access.'],
  ['Getting started','Can I use one account as both a Worker and Publisher?','Yes. Select Both during registration. You can switch between the Worker and Publisher workspaces from the workspace selector.'],
  ['Workers','How do I claim a task?','Open Find Tasks, review the reward, deadline, available slots and proof instructions, then open the task and claim one slot. A worker can claim each campaign only once.'],
@@ -12,8 +13,9 @@ $helpFaqs=[
  ['Payments','Are bKash, Nagad or bank payments automatic?','No. This build records wallet balances and withdrawal requests. An authorized Admin must verify and complete external payments manually; no payment gateway is connected.'],
  ['Safety','What tasks are prohibited?','Tasks involving credential or OTP collection, fake engagement, account trading, spam, deceptive reviews, bulk account creation or other manipulation of third-party platforms are prohibited.'],
  ['Safety','What should I avoid sharing in proof?','Never include passwords, OTPs, bank PINs, full payment credentials or unrelated personal information. Crop or blur private details before uploading evidence.'],
-];
-$groups=[];foreach($helpFaqs as $faq)$groups[$faq[0]][]=$faq;
+]];}
+$groups=[];foreach($helpFaqs as $faq)$groups[$faq['category']][]=[$faq['category'],$faq['question'],$faq['answer']];
+
 ?>
 <section class="view active help-page">
   <div class="container page-top"><span class="eyebrow">TaskHaat support</span><h1>Help Center</h1><p>Practical answers for Workers and Publishers, plus clear information about reviews, rewards and safety.</p></div>
