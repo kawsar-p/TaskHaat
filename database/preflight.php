@@ -73,7 +73,7 @@ try {
     $add('PASS', 'Database connection', DB_HOST . ':' . DB_PORT . '/' . DB_NAME . ' — ' . $version);
 
     $count = (int)$pdo->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_TYPE='BASE TABLE'")->fetchColumn();
-    $add($count === 16 ? 'PASS' : 'WARN', 'TaskHaat table count', $count . ' tables found; Phase 8 baseline expects 16.');
+    $add($count === 19 ? 'PASS' : 'WARN', 'TaskHaat table count', $count . ' tables found; Phase 10 schema expects 19.');
 
     $adminCount = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE user_type='admin' AND status='active'")->fetchColumn();
     $add($adminCount > 0 ? 'PASS' : 'FAIL', 'Active Admin account', $adminCount . ' active Admin account(s)');
