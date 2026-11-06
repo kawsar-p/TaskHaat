@@ -3,7 +3,9 @@
 <html lang="en" data-theme="<?=e($_SESSION['theme']??'light')?>">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#00CEC8"><title><?=e($title)?></title>
+<meta name="theme-color" content="#00CEC8"><meta name="color-scheme" content="light dark"><title><?=e($title)?></title>
+<link rel="icon" type="image/svg+xml" href="<?=e(asset_url('assets/favicon.svg'))?>">
+<link rel="apple-touch-icon" href="<?=e(asset_url('assets/favicon.svg'))?>">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?=e(asset_url('assets/css/taskhaat.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/manual-payments.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/app.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/dashboard.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/reference-theme.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/section-pages.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/worker-workspace.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/publisher-workspace.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/admin-workspace.css'))?>"><link rel="stylesheet" href="<?=e(asset_url('assets/css/site-experience.css'))?>">
@@ -16,5 +18,11 @@
 <?php require __DIR__.'/'.$view.'.php'; ?>
 </main>
 <?php if(!$isAuthPage) require __DIR__.'/partials/footer.php'; ?>
+<?php if(!$isAuthPage): ?>
+<div class="scroll-controls" id="scrollControls" aria-label="Page scroll controls">
+  <button class="scroll-control" type="button" data-scroll-to="top" aria-label="Scroll to top" title="Go to top"><i data-lucide="arrow-up"></i></button>
+  <button class="scroll-control" type="button" data-scroll-to="bottom" aria-label="Scroll to bottom" title="Go to bottom"><i data-lucide="arrow-down"></i></button>
+</div>
+<?php endif; ?>
 <script src="<?=e(asset_url('assets/js/app.js'))?>" defer></script>
 </body></html>

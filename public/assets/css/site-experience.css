@@ -198,3 +198,16 @@ html[data-theme="dark"] .faq-more-help>span{color:#C1D2D0}
   .faq-more-help{align-items:flex-start}
   .faq-more-help>span{width:100%}
 }
+
+
+/* Floating page navigation: fixed outside the content flow so it never shifts layout. */
+.scroll-controls{position:fixed;right:20px;bottom:88px;z-index:80;display:flex;flex-direction:column;gap:8px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(8px);transition:opacity .18s ease,transform .18s ease,visibility .18s ease}
+.scroll-controls.is-visible{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
+.scroll-control{width:42px;height:42px;display:grid;place-items:center;border:1px solid #B9E5E1;background:#FFFFFF;color:#007D79;box-shadow:0 4px 14px rgba(22,53,51,.12);cursor:pointer}
+.scroll-control:hover{background:#00CEC8;border-color:#00BDB7;color:#103332}
+.scroll-control svg{width:17px;height:17px}
+.scroll-control:focus-visible{outline:2px solid #EB4203;outline-offset:3px}
+html[data-theme="dark"] .scroll-control{background:#1C302E;border-color:#47746A;color:#72E3DC;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+html[data-theme="dark"] .scroll-control:hover{background:#1D4541;border-color:#72E3DC;color:#F1F7F6}
+@media(max-width:575px){.scroll-controls{right:14px;bottom:84px}.scroll-control{width:38px;height:38px}}
+@media(prefers-reduced-motion:reduce){.scroll-controls,.scroll-control{transition:none}}

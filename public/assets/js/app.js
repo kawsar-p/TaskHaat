@@ -5,6 +5,98 @@
   iconify();
 
   const html = document.documentElement;
+
+  // Keep the reader at the same position after a refresh in this tab.
+  // The restore is intentionally instant; smooth motion is reserved for arrow buttons.
+  const scrollControls = $('#scrollControls');
+  if (scrollControls) {
+    const scrollKey = 'taskhaat-scroll:' + window.location.pathname + window.location.search;
+    const topButton = $('[data-scroll-to="top"]', scrollControls);
+    const bottomButton = $('[data-scroll-to="bottom"]', scrollControls);
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+    let restoringScroll = true;
+    let saveScrollTimer = 0;
+
+    try {
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    } catch (_) {}
+
+    const saveScrollPosition = () => {
+      try {
+        sessionStorage.setItem(scrollKey, JSON.stringify({
+          x: Math.max(0, window.scrollX || 0),
+          y: Math.max(0, window.scrollY || 0)
+        }));
+      } catch (_) {}
+    };
+
+    const updateScrollControls = () => {
+      scrollControls.classList.toggle('is-visible', window.scrollY > 180);
+    };
+
+    const queueScrollSave = () => {
+      if (restoringScroll) return;
+      window.clearTimeout(saveScrollTimer);
+      saveScrollTimer = window.setTimeout(saveScrollPosition, 120);
+    };
+
+    window.addEventListener('scroll', () => {
+      updateScrollControls();
+      queueScrollSave();
+    }, { passive: true });
+    window.addEventListener('pagehide', saveScrollPosition);
+    window.addEventListener('beforeunload', saveScrollPosition);
+
+    const restoreScrollPosition = () => {
+      if (window.location.hash) {
+        restoringScroll = false;
+        updateScrollControls();
+        return;
+      }
+      let saved = null;
+      try {
+        const raw = sessionStorage.getItem(scrollKey);
+        saved = raw ? JSON.parse(raw) : null;
+      } catch (_) {}
+
+      if (!saved || !Number.isFinite(Number(saved.y))) {
+        restoringScroll = false;
+        updateScrollControls();
+        return;
+      }
+
+      const x = Math.max(0, Number(saved.x) || 0);
+      const y = Math.max(0, Number(saved.y) || 0);
+      const previousBehavior = html.style.scrollBehavior;
+      html.style.scrollBehavior = 'auto';
+      const restore = () => {
+        window.scrollTo({ left: x, top: y, behavior: 'auto' });
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          window.scrollTo({ left: x, top: y, behavior: 'auto' });
+          html.style.scrollBehavior = previousBehavior;
+          restoringScroll = false;
+          updateScrollControls();
+        }));
+      };
+      restore();
+    };
+
+    if (document.readyState === 'complete') {
+      requestAnimationFrame(restoreScrollPosition);
+    } else {
+      window.addEventListener('load', () => requestAnimationFrame(restoreScrollPosition), { once: true });
+    }
+
+    const scrollToPosition = target => {
+      saveScrollPosition();
+      const top = target === 'top' ? 0 : Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      window.scrollTo({ top, left: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+    };
+    topButton?.addEventListener('click', () => scrollToPosition('top'));
+    bottomButton?.addEventListener('click', () => scrollToPosition('bottom'));
+    updateScrollControls();
+  }
+
   const savedTheme = localStorage.getItem('taskhaat-theme');
   if (savedTheme === 'dark' || savedTheme === 'light') html.dataset.theme = savedTheme;
   const themeButton = $('#themeToggle');

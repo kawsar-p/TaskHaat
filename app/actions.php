@@ -517,6 +517,25 @@ function process_post(PDO $pdo): void {
                 $st=$pdo->prepare('SELECT name,is_active FROM categories WHERE id=?');$st->execute([$id]);$category=$st->fetch();if(!$category)throw new RuntimeException('Category not found.');
                 $pdo->beginTransaction();$pdo->prepare('UPDATE categories SET is_active=? WHERE id=?')->execute([$active,$id]);audit($pdo,(int)$admin['id'],$active?'category.activated':'category.deactivated','category',$id,['name'=>$category['name']]);$pdo->commit();flash('success',$active?'Category activated.':'Category deactivated. Existing campaigns are retained.');redirect('dashboard',['tab'=>'categories']);
             }
+            case 'admin_delete_category': {
+                $admin=require_role($pdo,'admin');
+                $id=(int)($_POST['category_id']??0);
+                if($id<1)throw new RuntimeException('Select a valid category.');
+                $pdo->beginTransaction();
+                $st=$pdo->prepare('SELECT id,name,slug FROM categories WHERE id=? FOR UPDATE');
+                $st->execute([$id]);
+                $category=$st->fetch();
+                if(!$category)throw new RuntimeException('Category not found.');
+                $st=$pdo->prepare('SELECT COUNT(*) FROM campaigns WHERE category_id=?');
+                $st->execute([$id]);
+                $linked=(int)$st->fetchColumn();
+                if($linked>0)throw new RuntimeException('This category is linked to '.$linked.' campaign(s). Deactivate it instead so existing campaign history remains intact.');
+                $pdo->prepare('DELETE FROM categories WHERE id=?')->execute([$id]);
+                audit($pdo,(int)$admin['id'],'category.deleted','category',$id,['name'=>$category['name'],'slug'=>$category['slug']]);
+                $pdo->commit();
+                flash('success','Unused category deleted.');
+                redirect('dashboard',['tab'=>'categories','as'=>'admin']);
+            }
             case 'admin_toggle_user': {
                 $admin=require_role($pdo,'admin');$id=(int)($_POST['user_id']??0);$status=(string)($_POST['status']??'');
                 if(!in_array($status,['active','suspended'],true)||$id<1||$id===(int)$admin['id'])throw new RuntimeException('Invalid account status change.');
