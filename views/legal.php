@@ -1,6 +1,6 @@
 <?php $legalType=($legalType??'terms')==='privacy'?'privacy':'terms'; ?>
 <section class="view active legal-page">
-  <div class="container page-top"><span class="eyebrow">TaskHaat policies</span><h1><?=$legalType==='privacy'?'Privacy notice':'Terms of use'?></h1><p>Plain-language product policy summary for this TaskHaat project build.</p></div>
+  <div class="container page-top"><span class="eyebrow">TaskHaat policies</span><h1><?=e(site_content_value($pdo,$legalType.'_page_heading',$legalType==='privacy'?'Privacy notice':'Terms of use'))?></h1><p><?=e(site_content_value($pdo,$legalType.'_page_intro','Plain-language product policy summary for this TaskHaat project build.'))?></p></div>
   <div class="container legal-content">
     <?php if($legalType==='privacy'): ?>
       <article class="legal-section"><h2>1. Information used to operate the service</h2><p>TaskHaat stores account details such as name, email, optional phone and profile information. It also stores campaign, claim, submission, wallet, withdrawal, notification and support-request records needed to operate the marketplace.</p></article>

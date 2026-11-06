@@ -1,5 +1,5 @@
 <section class="view active safety-page">
-  <div class="container page-top"><span class="eyebrow">Trust &amp; safety</span><h1>Clear work. Responsible participation.</h1><p>TaskHaat is intended for legitimate surveys, usability testing, research, data entry, transcription and similar work that respects privacy and platform rules.</p></div>
+  <div class="container page-top"><span class="eyebrow"><?=e(site_content_value($pdo,'safety_page_eyebrow','Trust & safety'))?></span><h1><?=e(site_content_value($pdo,'safety_page_heading','Clear work. Responsible participation.'))?></h1><p><?=e(site_content_value($pdo,'safety_page_intro','TaskHaat is intended for legitimate surveys, usability testing, research, data entry, transcription and similar work that respects privacy and platform rules.'))?></p></div>
   <div class="container safety-content">
     <div class="safety-intro"><span class="safety-shield"><i data-lucide="shield-check"></i></span><div><h2>Safety applies to every campaign</h2><p>Publishers must describe the real purpose of a task. Workers should submit only the evidence needed to verify completion. Admin may reject or remove tasks that violate these rules.</p></div></div>
     <div class="safety-grid">

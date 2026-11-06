@@ -18,7 +18,7 @@ $groups=[];foreach($helpFaqs as $faq)$groups[$faq['category']][]=[$faq['category
 
 ?>
 <section class="view active help-page">
-  <div class="container page-top"><span class="eyebrow">TaskHaat support</span><h1>Help Center</h1><p>Practical answers for Workers and Publishers, plus clear information about reviews, rewards and safety.</p></div>
+  <div class="container page-top"><span class="eyebrow"><?=e(site_content_value($pdo,'help_page_eyebrow','TaskHaat support'))?></span><h1><?=e(site_content_value($pdo,'help_page_heading','Help Center'))?></h1><p><?=e(site_content_value($pdo,'help_page_intro','Practical answers for Workers and Publishers, plus clear information about reviews, rewards and safety.'))?></p></div>
   <div class="container help-content">
     <div class="help-hero-grid">
       <article class="help-hero-card"><span class="help-hero-icon"><i data-lucide="search"></i></span><div><h2>Find an answer</h2><p>Search common questions about tasks, campaigns, wallets and account safety.</p></div><a class="btn sm" href="#helpQuestions">Browse answers</a></article>

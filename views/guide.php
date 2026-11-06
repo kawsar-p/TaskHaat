@@ -21,6 +21,10 @@ if($guideType==='publisher'){
    ['Follow the review and wallet status','Track Pending, Approved or Rejected in My Submissions. A net reward is credited to your available wallet after approval.'],
   ];
 }
+$eyebrow=site_content_value($pdo,'guide_'.$guideType.'_eyebrow',$eyebrow);
+$heading=site_content_value($pdo,'guide_'.$guideType.'_heading',$heading);
+$intro=site_content_value($pdo,'guide_'.$guideType.'_intro',$intro);
+
 ?>
 <section class="view active guide-page">
   <div class="container page-top"><span class="eyebrow"><?=e($eyebrow)?></span><h1><?=e($heading)?></h1><p><?=e($intro)?></p></div>
