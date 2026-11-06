@@ -37,7 +37,6 @@
     window.setTimeout(restore, 120);
     try { sessionStorage.removeItem(scrollStorageKey); } catch (_) {}
     refreshScrollY = null;
-    history.scrollRestoration = 'auto';
   };
   if (document.readyState === 'complete') restoreRefreshPosition();
   else window.addEventListener('load', restoreRefreshPosition, {once:true});

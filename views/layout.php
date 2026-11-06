@@ -14,9 +14,6 @@
 <body class="<?=$isAuthPage ? 'page-auth' : ''?>">
 <?php if(!$isAuthPage) require __DIR__.'/partials/header.php'; ?>
 <main>
-<?php $siteAnnouncement=active_site_announcement($pdo); if($siteAnnouncement): ?>
-<div class="site-announcement is-<?=e($siteAnnouncement['style'])?>" role="status"><div class="container"><span><strong><?=e($siteAnnouncement['title'])?></strong> <?=e($siteAnnouncement['message'])?></span><?php if(!empty($siteAnnouncement['cta_url'])&&!empty($siteAnnouncement['cta_label'])): ?><a href="<?=e($siteAnnouncement['cta_url'])?>"><?=e($siteAnnouncement['cta_label'])?></a><?php endif; ?></div></div>
-<?php endif; ?>
 <?php foreach($flashes as $f): ?><div class="container flash-wrap"><div class="flash <?=e($f['type'])?>"><?=e($f['message'])?></div></div><?php endforeach; ?>
 <?php require __DIR__.'/'.$view.'.php'; ?>
 </main>
