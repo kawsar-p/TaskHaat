@@ -564,6 +564,111 @@ function process_post(PDO $pdo): void {
             case 'pause_campaign': {
                 $user=require_role($pdo,'publisher');$id=(int)($_POST['campaign_id']??0);$pdo->beginTransaction();lock_active_account($pdo,(int)$user['id']);$st=$pdo->prepare("UPDATE campaigns SET status='paused' WHERE id=? AND publisher_id=? AND status='approved'");$st->execute([$id,(int)$user['id']]);if(!$st->rowCount())throw new RuntimeException('Only your approved campaigns can be paused.');audit($pdo,(int)$user['id'],'campaign.paused','campaign',$id);$pdo->commit();flash('success','Campaign paused. Existing claims can still be reviewed.');redirect('dashboard',['tab'=>'campaigns']);
             }
+            case 'site_content_save': {
+                $admin=require_role($pdo,'admin');
+                $id=(int)($_POST['content_id']??0);
+                $key=strtolower(trim((string)($_POST['content_key']??'')));
+                $label=trim((string)($_POST['label']??''));
+                $group=(string)($_POST['content_group']??'homepage');
+                $type=(string)($_POST['content_type']??'text');
+                $value=trim((string)($_POST['content_value']??''));
+                $sort=(int)($_POST['sort_order']??0);
+                $public=isset($_POST['is_public'])?1:0;
+                if(!preg_match('/^[a-z0-9][a-z0-9_]{2,119}$/',$key))throw new RuntimeException('Content key must be 3–120 lowercase letters, numbers or underscores.');
+                if(text_length($label)<2||text_length($label)>160)throw new RuntimeException('Content label must contain 2–160 characters.');
+                if(!in_array($group,['branding','homepage','navigation','footer','general'],true))throw new RuntimeException('Choose a valid website content group.');
+                if(!in_array($type,['text','textarea','url','boolean'],true))throw new RuntimeException('Choose a valid content type.');
+                if(text_length($value)>12000)throw new RuntimeException('Content values must be 12,000 characters or fewer.');
+                if($type==='boolean'&&!in_array($value,['0','1'],true))throw new RuntimeException('Boolean values must be On or Off.');
+                if($type==='url'&&$value!==''&&!preg_match('/^(https?:\/\/|\/|#)/i',$value))throw new RuntimeException('Content URLs must start with http://, https://, / or #.');
+                if($sort < -9999 || $sort > 9999)throw new RuntimeException('Display order must be between -9,999 and 9,999.');
+                $pdo->beginTransaction();
+                if($id>0){
+                    $st=$pdo->prepare('SELECT id FROM site_content WHERE id=? FOR UPDATE');$st->execute([$id]);
+                    if(!$st->fetch())throw new RuntimeException('Website content entry not found.');
+                    $pdo->prepare('UPDATE site_content SET content_key=?,label=?,content_group=?,content_type=?,content_value=?,is_public=?,sort_order=?,updated_by=? WHERE id=?')->execute([$key,$label,$group,$type,$value,$public,$sort,(int)$admin['id'],$id]);
+                    $entityId=$id;$event='site_content.updated';
+                }else{
+                    $pdo->prepare('INSERT INTO site_content(content_key,label,content_group,content_type,content_value,is_public,sort_order,updated_by) VALUES(?,?,?,?,?,?,?,?)')->execute([$key,$label,$group,$type,$value,$public,$sort,(int)$admin['id']]);
+                    $entityId=(int)$pdo->lastInsertId();$event='site_content.created';
+                }
+                audit($pdo,(int)$admin['id'],$event,'site_content',$entityId,['content_key'=>$key,'content_group'=>$group,'content_type'=>$type,'is_public'=>$public]);
+                $pdo->commit();flash('success','Website content saved.');redirect('dashboard',['tab'=>'website']);
+            }
+            case 'site_content_delete': {
+                $admin=require_role($pdo,'admin');$id=(int)($_POST['content_id']??0);
+                if($id<1)throw new RuntimeException('Select a valid website content entry.');
+                $pdo->beginTransaction();$st=$pdo->prepare('SELECT content_key,label FROM site_content WHERE id=? FOR UPDATE');$st->execute([$id]);$row=$st->fetch();
+                if(!$row)throw new RuntimeException('Website content entry not found.');
+                $pdo->prepare('DELETE FROM site_content WHERE id=?')->execute([$id]);
+                audit($pdo,(int)$admin['id'],'site_content.deleted','site_content',$id,['content_key'=>$row['content_key'],'label'=>$row['label']]);
+                $pdo->commit();flash('success','Website content entry deleted. Built-in copy will be used where available.');redirect('dashboard',['tab'=>'website']);
+            }
+            case 'site_faq_save': {
+                $admin=require_role($pdo,'admin');$id=(int)($_POST['faq_id']??0);
+                $question=trim((string)($_POST['question']??''));$answer=trim((string)($_POST['answer']??''));
+                $sort=(int)($_POST['sort_order']??0);$active=isset($_POST['is_active'])?1:0;
+                if(text_length($question)<8||text_length($question)>255)throw new RuntimeException('FAQ question must contain 8–255 characters.');
+                if(text_length($answer)<10||text_length($answer)>5000)throw new RuntimeException('FAQ answer must contain 10–5,000 characters.');
+                if($sort < -9999 || $sort > 9999)throw new RuntimeException('FAQ display order must be between -9,999 and 9,999.');
+                $pdo->beginTransaction();
+                if($id>0){
+                    $st=$pdo->prepare('SELECT id FROM site_faqs WHERE id=? FOR UPDATE');$st->execute([$id]);if(!$st->fetch())throw new RuntimeException('FAQ not found.');
+                    $pdo->prepare('UPDATE site_faqs SET question=?,answer=?,sort_order=?,is_active=?,updated_by=? WHERE id=?')->execute([$question,$answer,$sort,$active,(int)$admin['id'],$id]);
+                    $entityId=$id;$event='site_faq.updated';
+                }else{
+                    $pdo->prepare('INSERT INTO site_faqs(question,answer,sort_order,is_active,updated_by) VALUES(?,?,?,?,?)')->execute([$question,$answer,$sort,$active,(int)$admin['id']]);
+                    $entityId=(int)$pdo->lastInsertId();$event='site_faq.created';
+                }
+                audit($pdo,(int)$admin['id'],$event,'site_faq',$entityId,['is_active'=>$active]);
+                $pdo->commit();flash('success','FAQ saved.');redirect('dashboard',['tab'=>'faqs']);
+            }
+            case 'site_faq_delete': {
+                $admin=require_role($pdo,'admin');$id=(int)($_POST['faq_id']??0);
+                if($id<1)throw new RuntimeException('Select a valid FAQ.');
+                $pdo->beginTransaction();$st=$pdo->prepare('SELECT question FROM site_faqs WHERE id=? FOR UPDATE');$st->execute([$id]);$row=$st->fetch();
+                if(!$row)throw new RuntimeException('FAQ not found.');
+                $pdo->prepare('DELETE FROM site_faqs WHERE id=?')->execute([$id]);
+                audit($pdo,(int)$admin['id'],'site_faq.deleted','site_faq',$id,['question'=>$row['question']]);
+                $pdo->commit();flash('success','FAQ deleted.');redirect('dashboard',['tab'=>'faqs']);
+            }
+            case 'site_announcement_save': {
+                $admin=require_role($pdo,'admin');$id=(int)($_POST['announcement_id']??0);
+                $title=trim((string)($_POST['title']??''));$message=trim((string)($_POST['message']??''));
+                $label=trim((string)($_POST['cta_label']??''));$urlValue=trim((string)($_POST['cta_url']??''));
+                $style=(string)($_POST['style']??'info');$start=trim((string)($_POST['starts_at']??''));$end=trim((string)($_POST['ends_at']??''));
+                $active=isset($_POST['is_active'])?1:0;$sort=(int)($_POST['sort_order']??0);
+                if(text_length($title)<3||text_length($title)>160)throw new RuntimeException('Announcement title must contain 3–160 characters.');
+                if(text_length($message)<5||text_length($message)>1200)throw new RuntimeException('Announcement message must contain 5–1,200 characters.');
+                if(text_length($label)>80||strlen($urlValue)>500)throw new RuntimeException('Announcement button text or link is too long.');
+                if(!in_array($style,['info','success','warning'],true))throw new RuntimeException('Choose an announcement style.');
+                if($urlValue!==''&&!preg_match('/^(https?:\/\/|\/|#)/i',$urlValue))throw new RuntimeException('Announcement link must start with http://, https://, / or #.');
+                if($sort < -9999 || $sort > 9999)throw new RuntimeException('Announcement order must be between -9,999 and 9,999.');
+                $startValue=null;$endValue=null;
+                try{if($start!=='')$startValue=(new DateTime($start))->format('Y-m-d H:i:s');if($end!=='')$endValue=(new DateTime($end))->format('Y-m-d H:i:s');}
+                catch(Throwable){throw new RuntimeException('Enter valid announcement start and end dates.');}
+                if($startValue&&$endValue&&$endValue<=$startValue)throw new RuntimeException('Announcement end time must be later than its start time.');
+                $pdo->beginTransaction();
+                if($id>0){
+                    $st=$pdo->prepare('SELECT id FROM site_announcements WHERE id=? FOR UPDATE');$st->execute([$id]);if(!$st->fetch())throw new RuntimeException('Announcement not found.');
+                    $pdo->prepare('UPDATE site_announcements SET title=?,message=?,cta_label=?,cta_url=?,style=?,starts_at=?,ends_at=?,is_active=?,sort_order=?,updated_by=? WHERE id=?')->execute([$title,$message,$label!==''?$label:null,$urlValue!==''?$urlValue:null,$style,$startValue,$endValue,$active,$sort,(int)$admin['id'],$id]);
+                    $entityId=$id;$event='site_announcement.updated';
+                }else{
+                    $pdo->prepare('INSERT INTO site_announcements(title,message,cta_label,cta_url,style,starts_at,ends_at,is_active,sort_order,updated_by) VALUES(?,?,?,?,?,?,?,?,?,?)')->execute([$title,$message,$label!==''?$label:null,$urlValue!==''?$urlValue:null,$style,$startValue,$endValue,$active,$sort,(int)$admin['id']]);
+                    $entityId=(int)$pdo->lastInsertId();$event='site_announcement.created';
+                }
+                audit($pdo,(int)$admin['id'],$event,'site_announcement',$entityId,['is_active'=>$active,'style'=>$style]);
+                $pdo->commit();flash('success','Announcement saved.');redirect('dashboard',['tab'=>'announcements']);
+            }
+            case 'site_announcement_delete': {
+                $admin=require_role($pdo,'admin');$id=(int)($_POST['announcement_id']??0);
+                if($id<1)throw new RuntimeException('Select a valid announcement.');
+                $pdo->beginTransaction();$st=$pdo->prepare('SELECT title FROM site_announcements WHERE id=? FOR UPDATE');$st->execute([$id]);$row=$st->fetch();
+                if(!$row)throw new RuntimeException('Announcement not found.');
+                $pdo->prepare('DELETE FROM site_announcements WHERE id=?')->execute([$id]);
+                audit($pdo,(int)$admin['id'],'site_announcement.deleted','site_announcement',$id,['title'=>$row['title']]);
+                $pdo->commit();flash('success','Announcement deleted.');redirect('dashboard',['tab'=>'announcements']);
+            }
             default: throw new RuntimeException('Unknown form action.');
         }
     } catch (Throwable $e) {
