@@ -4,7 +4,7 @@ $workerRate=(float)get_setting($pdo,'worker_fee_rate','8');
 $sampleGross=50.00;$sampleWorkerFee=round($sampleGross*$workerRate/100,2);$sampleNet=round($sampleGross-$sampleWorkerFee,2);$samplePublisherFee=round(50.00*$pubRate/100,2)*20;
 ?>
 <section class="view active fees-page" data-publisher-fee="<?=e($pubRate)?>" data-worker-fee="<?=e($workerRate)?>">
-  <div class="container page-top"><span class="eyebrow">Transparent pricing</span><h1>Fees &amp; reward calculation</h1><p>Know how campaign funding and worker rewards are calculated before you publish or claim a task. Rates are configurable by TaskHaat Admin.</p></div>
+  <div class="container page-top"><span class="eyebrow"><?=e(site_content_value($pdo,'fees_page_eyebrow','Transparent pricing'))?></span><h1><?=e(site_content_value($pdo,'fees_page_heading','Fees & reward calculation'))?></h1><p><?=e(site_content_value($pdo,'fees_page_intro','Know how campaign funding and worker rewards are calculated before you publish or claim a task. Rates are configurable by TaskHaat Admin.'))?></p></div>
   <div class="container fees-content">
     <div class="fees-intro-grid">
       <article class="fees-intro-card"><span class="fees-intro-icon"><i data-lucide="wallet"></i></span><div><strong>Publisher fee</strong><p><?=e(number_format($pubRate,2))?>% is added to the campaign reward pool when a campaign is funded.</p></div></article>

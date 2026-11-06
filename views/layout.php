@@ -3,7 +3,7 @@
 <html lang="en" data-theme="<?=e($_SESSION['theme']??'light')?>">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#00CEC8"><title><?=e($title)?></title>
+<meta name="theme-color" content="#00CEC8"><meta name="description" content="<?=e($metaDescription??'TaskHaat — a microtask marketplace for legitimate online work, clear proof and transparent rewards.')?>"><title><?=e($title)?></title>
 <link rel="icon" type="image/svg+xml" href="<?=e(asset_url('assets/favicon.svg'))?>">
 <script>(()=>{try{const saved=localStorage.getItem('taskhaat-theme');if(saved==='dark'||saved==='light')document.documentElement.dataset.theme=saved;}catch(_){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

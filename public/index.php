@@ -128,4 +128,13 @@ switch($route){
     default: {http_response_code(404);$view='404';$title='Page not found — TaskHaat';}
 }
 
+
+$cmsPageKey='';
+if(in_array($route,['home','browse','fees','help','safety','contact','privacy','terms'],true))$cmsPageKey=$route;
+elseif($route==='guide')$cmsPageKey='guide_'.($guideType??'worker');
+if($cmsPageKey!==''){
+    $title=site_content_value($pdo,'page_title_'.$cmsPageKey,$title);
+    $metaDescription=site_content_value($pdo,'page_description_'.$cmsPageKey,'TaskHaat — a microtask marketplace for legitimate online work, clear proof and transparent rewards.');
+}
+
 require dirname(__DIR__).'/views/layout.php';

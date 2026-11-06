@@ -10,9 +10,9 @@ if($min>0)$activeFilters[]=['Reward: ৳'.number_format($min,0).'+',url('browse'
 ?>
 <section class="view active browse-page">
   <div class="container page-top">
-    <span class="eyebrow">Task marketplace</span>
-    <h1>Find your next microtask</h1>
-    <p>Compare reward, effort, deadline and available worker slots before claiming.</p>
+    <span class="eyebrow"><?=e(site_content_value($pdo,'browse_page_eyebrow','Task marketplace'))?></span>
+    <h1><?=e(site_content_value($pdo,'browse_page_heading','Find your next microtask'))?></h1>
+    <p><?=e(site_content_value($pdo,'browse_page_intro','Compare reward, effort, deadline and available worker slots before claiming.'))?></p>
   </div>
   <div class="container browse-content">
     <form class="marketplace-filters" method="get" action="index.php">
