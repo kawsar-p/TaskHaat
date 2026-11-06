@@ -24,3 +24,15 @@ html[data-theme="dark"] .scroll-control{background:#1C302E;border-color:#36514D;
 html[data-theme="dark"] .scroll-control:hover{background:#00CEC8;border-color:#00CEC8;color:#123332}
 @media(max-width:600px){.scroll-controls{right:12px;bottom:14px;gap:6px}.scroll-control{width:38px;height:38px}}
 @media(prefers-reduced-motion:reduce){.scroll-control{transition:none}.scroll-control:hover{transform:none}}
+
+
+.site-announcement{background:#E5FAF8;border-bottom:1px solid #B8E8E3;color:#202B2B}
+.site-announcement .container{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0;font-size:12px;line-height:1.5}
+.site-announcement strong{font-weight:800;margin-right:6px}
+.site-announcement a{color:#006D69;font-weight:800;white-space:nowrap;text-decoration:underline;text-underline-offset:3px}
+.site-announcement.is-success{background:#ECF7EF;border-color:#C8E5CE}
+.site-announcement.is-warning{background:#FFF5DF;border-color:#F0D9A8}
+html[data-theme="dark"] .site-announcement{background:#1D4541;border-color:#36514D;color:#F1F7F6}
+html[data-theme="dark"] .site-announcement a{color:#72E3DC}
+html[data-theme="dark"] .site-announcement.is-success{background:#203B2E}
+html[data-theme="dark"] .site-announcement.is-warning{background:#3B3528}
