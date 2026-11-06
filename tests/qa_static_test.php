@@ -73,6 +73,9 @@ $roleRequirements = [
     'admin_deposit_request' => "require_role(\$pdo,'admin')",
     'admin_update_support_message' => "require_role(\$pdo,'admin')",
     'admin_toggle_user' => "require_role(\$pdo,'admin')",
+    'admin_create_user' => "require_role(\$pdo,'admin')",
+    'admin_update_user' => "require_role(\$pdo,'admin')",
+    'admin_delete_user' => "require_role(\$pdo,'admin')",
 ];
 $roleFailures = [];
 foreach ($roleRequirements as $action => $required) {
@@ -114,12 +117,21 @@ $demoEmails = ['admin@taskhaat.local','publisher@taskhaat.local','publisher2@tas
 $missingDemo = array_values(array_filter($demoEmails, static fn($email) => !str_contains($schema, $email)));
 $assert(count($missingDemo) === 0, 'Schema includes the seven documented demo accounts' . ($missingDemo ? ': ' . implode(', ', $missingDemo) : ''));
 
+
+$assert(str_contains($schema, 'CREATE TABLE IF NOT EXISTS site_content') && str_contains($schema, 'CREATE TABLE IF NOT EXISTS site_faqs') && str_contains($schema, 'CREATE TABLE IF NOT EXISTS site_announcements'), 'Phase 10 CMS tables are present');
+$assert(str_contains($actionSource, "case 'site_content_save':") && str_contains($actionSource, "case 'site_faq_save':") && str_contains($actionSource, "case 'site_announcement_save':"), 'Admin website-content, FAQ and announcement CRUD handlers are present');
+$assert(str_contains($actionSource, "case 'admin_create_user':") && str_contains($actionSource, "case 'admin_update_user':") && str_contains($actionSource, "case 'admin_delete_user':"), 'Admin user create, update and guarded delete handlers are present');
+$assert(str_contains($actionSource, "wallet_transactions") && str_contains($actionSource, "manual_deposit_requests") && str_contains($actionSource, "withdrawals"), 'User deletion checks protect financial and campaign history');
+$assert(str_contains($router, "'website'") && str_contains($router, "'faqs'") && str_contains($router, "'announcements'"), 'Admin website-management tabs are authorized by the router');
+$assert(str_contains($read('views/dashboard/admin.php'), 'admin-category-table') && str_contains($read('views/dashboard/admin.php'), 'admin-user-edit-form'), 'Admin categories and user management use table-based CRUD interfaces');
+$assert(str_contains($read('views/home.php'), 'site_content_value') && str_contains($read('views/help.php'), "site_faq_rows(\$pdo,'help')"), 'Homepage and Help Center read editable website content and grouped FAQs');
+$assert(str_contains($read('views/layout.php'), 'assets/favicon.svg') && str_contains($read('public/assets/favicon.svg'), '<svg'), 'TaskHaat SVG favicon is linked and exists');
+$assert(str_contains($read('views/layout.php'), 'scrollToTop') && str_contains($read('views/layout.php'), 'scrollToBottom') && str_contains($read('public/assets/js/app.js'), 'sessionStorage.setItem(scrollStorageKey'), 'Top/bottom page controls and refresh scroll persistence are wired');
+$assert(str_contains($read('public/assets/js/app.js'), 'const targetY = refreshScrollY') && str_contains($read('public/assets/js/app.js'), 'window.scrollTo(0, Math.min(targetY, maximum))'), 'Refresh restoration captures the saved scroll offset before scheduling corrections');
+$assert(str_contains($read('public/assets/css/taskhaat.css'), 'grid-template-columns:minmax(0,1fr);width:100%') && str_contains($read('public/assets/css/taskhaat.css'), '.task-card.task-row .task-body{grid-column:1/-1'), 'Marketplace task rows use the full available width');
+$assert(str_contains($read('views/fees.php'), 'bKash logo') && str_contains($read('views/fees.php'), 'Nagad logo') && str_contains($read('views/fees.php'), 'Rocket by Dutch-Bangla Bank logo'), 'Fees page displays payment-brand image elements');
+$assert(str_contains($read('app/bootstrap.php'), 'https://tasks.care') && str_contains($read('app/bootstrap.php'), 'https://upload.wikimedia.org'), 'Content Security Policy allows the payment logo image hosts');
+
 $testCount = $checks;
 echo PHP_EOL . "{$testCount} source-level QA checks; {$failed} failed." . PHP_EOL;
 exit($failed === 0 ? 0 : 1);
-
-$assert(str_contains($schema, 'CREATE TABLE IF NOT EXISTS site_content') && str_contains($schema, 'CREATE TABLE IF NOT EXISTS site_faqs') && str_contains($schema, 'CREATE TABLE IF NOT EXISTS site_announcements'), 'Phase 10 CMS tables are present');
-
-$assert(str_contains($schema, 'CREATE TABLE IF NOT EXISTS site_content') && str_contains($schema, 'CREATE TABLE IF NOT EXISTS site_faqs') && str_contains($schema, 'CREATE TABLE IF NOT EXISTS site_announcements'), 'Website content, FAQ and announcement tables are defined');
-$assert(str_contains($actionSource, "case 'site_content_save':") && str_contains($actionSource, "case 'site_faq_save':") && str_contains($actionSource, "case 'site_announcement_save':"), 'Admin website-management CRUD actions are present');
-$assert(str_contains($router, "'website'") && str_contains($router, "'faqs'") && str_contains($router, "'announcements'"), 'Admin website-management tabs are authorized by the router');
