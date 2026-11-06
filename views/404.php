@@ -1,0 +1,1 @@
+<section class="section"><div class="container task-empty"><i data-lucide="file-question"></i><h2>Page not found</h2><p>The page may have moved or the link is incorrect.</p><a class="btn" href="<?=e(url('home'))?>">Return home</a></div></section>

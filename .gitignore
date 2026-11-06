@@ -1,0 +1,19 @@
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/submissions/*
+!/storage/submissions/.htaccess
+/public/uploads/campaigns/*
+!/public/uploads/campaigns/.htaccess
+.env
+.DS_Store
+/storage/deposits/*
+!/storage/deposits/.htaccess
+!/storage/deposits/.gitkeep
+
+# Private backups and local runtime files
+/storage/backups/*
+!/storage/backups/.htaccess
+/.env
+/.env.*
+!.env.example
+/storage/logs/*.log

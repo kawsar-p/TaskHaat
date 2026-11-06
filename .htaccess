@@ -1,0 +1,13 @@
+Options -Indexes
+
+# Defense in depth if a host mistakenly points the document root at the project folder.
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Application internals, local secrets, tests and backups must never be served.
+  RewriteRule ^(app|config|database|storage|tests|backups)(/|$) - [F,L,NC]
+  RewriteRule ^\. - [F,L]
+</IfModule>

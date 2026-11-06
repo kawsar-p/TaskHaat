@@ -1,0 +1,153 @@
+/* TaskHaat public section detail update — follows the supplied final reference palette. */
+.browse-content,.fees-content{padding-bottom:68px}
+.marketplace-filters{display:grid;grid-template-columns:minmax(210px,1.5fr) repeat(3,minmax(135px,.8fr)) auto;gap:10px;align-items:end;padding:16px;background:#FFFCF3;border:1px solid #F0E7CD;margin-bottom:17px}
+.marketplace-search{height:43px;display:flex;align-items:center;gap:9px;padding:0 10px;background:#fff;border:1px solid #BFE7E3;min-width:0}
+.marketplace-search>svg{width:16px;color:#008F89;flex:none}
+.marketplace-search input{width:100%;min-width:0;height:100%;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:#202B2B!important;font-size:11px}
+.marketplace-search .clear-search{display:none;width:25px;height:25px;place-items:center;border:0;background:transparent;color:#82918D;flex:none}
+.marketplace-search .clear-search.visible{display:grid}
+.filter-control{display:grid;gap:5px;min-width:0}
+.filter-control>span{font-size:9px;font-weight:800;color:#596765}
+.filter-control select{height:43px;width:100%;min-width:0;padding:0 9px;border:1px solid #D5E4DF;background:#fff;color:#202B2B;font-size:10px}
+.marketplace-apply{height:43px;white-space:nowrap}
+.browse-result-bar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:12px 0;color:#6D7B78;font-size:11px}
+.browse-result-bar strong{color:#202B2B;font:800 17px Manrope;margin-right:4px}
+.result-range{color:#899694;font-size:10px}
+.browse-reset{display:inline-flex;align-items:center;gap:6px;color:#007D79;font-weight:800;font-size:10px;white-space:nowrap}
+.browse-reset svg{width:13px;height:13px}
+.active-filter-list{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 14px}
+.active-filter{display:inline-flex;align-items:center;gap:7px;padding:6px 9px;background:#E5FAF8;color:#007D79;border:1px solid #BFE7E3;font-size:9px;font-weight:700}
+.active-filter svg{width:12px;height:12px}
+.marketplace-task-grid{margin-bottom:20px}
+.marketplace-pagination{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:18px;border-top:1px solid #E4E9E6}
+.pagination-link,.pagination-number{min-width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 10px;border:1px solid #DDE5E1;background:#fff;color:#566765;font-size:10px;font-weight:800}
+.pagination-link svg{width:13px;height:13px}
+.pagination-link:hover,.pagination-number:hover{border-color:#8BDAD4;background:#E5FAF8;color:#007D79}
+.pagination-link.is-disabled{opacity:.42;pointer-events:none}
+.pagination-pages{display:flex;align-items:center;gap:5px}
+.pagination-number.is-current{background:#00CEC8;border-color:#00BDB7;color:#123332}
+.pagination-ellipsis{padding:0 3px;color:#899694}
+.task-page-top{padding-bottom:18px}
+.task-heading-block{margin-top:17px}
+.task-heading-meta{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.task-heading-block h1{max-width:900px;margin:9px 0 6px;font:800 clamp(26px,3.8vw,42px)/1.14 Manrope;letter-spacing:-.045em;color:#202B2B}
+.task-heading-block p{color:#71807E;font-size:11px;margin:0}
+.task-heading-block p strong{color:#415452}
+.task-detail-page-layout{padding-bottom:50px;align-items:start}
+.task-overview-panel,.task-proof-panel,.task-progress-panel{margin-bottom:14px;overflow:hidden}
+.task-detail-cover{height:230px;background:#F1F6F3;overflow:hidden}
+.task-detail-cover img{width:100%;height:100%;object-fit:cover}
+.task-detail-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:start}
+.task-detail-top h2{font:800 19px Manrope;color:#202B2B;margin:13px 0 8px}
+.task-description{font-size:11px;line-height:1.8;color:#596765;overflow-wrap:anywhere}
+.task-detail-reward{min-width:175px;padding:14px;background:#E5FAF8;border:1px solid #BFE7E3;display:grid;gap:5px}
+.task-detail-reward small{font-size:9px;color:#5A7470}
+.task-detail-reward strong{font:800 23px Manrope;color:#007D79}
+.task-detail-reward span{font-size:9px;color:#637A76}
+.task-detail-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:22px 0 13px}
+.task-detail-stats>div{padding:10px;background:#FFFCF3;border:1px solid #F0E7CD;min-width:0}
+.task-detail-stats small{display:block;font-size:8px;color:#83908C;margin-bottom:5px}
+.task-detail-stats strong{display:block;font:700 11px Manrope;color:#334441;overflow-wrap:anywhere}
+.task-progress-label{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;color:#6D7A77;font-size:9px}
+.task-progress-label strong{color:#007D79}
+.task-detail-progress{height:6px;background:#EAF0EC}
+.task-detail-progress span{background:#00CEC8}
+.task-proof-panel .panel-head p{margin:4px 0 0;color:#899694;font-size:9px}
+.task-instructions{font-size:11px;line-height:1.8;color:#4F615E;white-space:normal;overflow-wrap:anywhere}
+.task-safety-note{display:flex;align-items:flex-start;gap:8px;margin-top:14px}
+.task-safety-note svg,.task-owner-note svg{width:15px;min-width:15px;color:#007D79}
+.task-status-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.task-status-step{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid #E4E9E6;background:#F8FAF9;color:#85918E}
+.task-status-step span{width:22px;height:22px;display:grid;place-items:center;background:#EDF1EF;color:#667572;font-size:9px;font-weight:900}
+.task-status-step strong{font-size:9px}
+.task-status-step.is-done{background:#E5FAF8;border-color:#BFE7E3;color:#007D79}
+.task-status-step.is-done span{background:#00CEC8;color:#123332}
+.task-proof-form{margin-top:14px}
+.task-proof-form textarea{min-height:125px}
+.review-feedback{margin-top:12px;padding:12px;background:#FFF0E9;border-left:3px solid #EB4203}
+.review-feedback strong{font-size:10px;color:#9F360C}
+.review-feedback p{font-size:10px;line-height:1.6;color:#6D5148;margin:5px 0 0}
+.task-claim-panel{margin-bottom:14px;background:#FFFCF3;border-color:#F0E7CD}
+.task-claim-body{display:flex;justify-content:space-between;align-items:center;gap:18px}
+.task-claim-body h3,.task-claim-panel h3{font:800 14px Manrope;color:#202B2B;margin:0 0 5px}
+.task-claim-body p,.task-claim-panel p{font-size:10px;color:#65736F;margin:0;line-height:1.6}
+.task-claim-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.task-owner-note{display:flex;align-items:flex-start;gap:8px}
+.task-reward-card p{font-size:9px;line-height:1.6;color:#D2EFEB;margin:7px 0 12px}
+.task-publisher-note{font-size:10px;line-height:1.7}
+.task-checklist{display:grid;gap:10px}
+.task-checklist p{display:flex;align-items:flex-start;gap:8px;margin:0;color:#596765;font-size:9px;line-height:1.5}
+.task-checklist svg{width:14px;height:14px;color:#008F89;flex:none}
+.related-task-section{background:#FFFCF3;border-top:1px solid #F0E7CD;padding-top:45px}
+.fees-intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:15px}
+.fees-intro-card{display:flex;align-items:flex-start;gap:12px;padding:16px;background:#fff;border:1px solid #E4E9E6}
+.fees-intro-icon{width:38px;height:38px;display:grid;place-items:center;background:#E5FAF8;color:#007D79;flex:none}
+.fees-intro-icon.warm{background:#FCEFC3;color:#98632A}
+.fees-intro-icon svg{width:18px;height:18px}
+.fees-intro-card strong{font:800 12px Manrope;color:#202B2B}
+.fees-intro-card p{font-size:10px;line-height:1.6;color:#687573;margin:4px 0 0}
+.fees-calculator-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:14px;margin-bottom:14px}
+.fees-estimator-panel,.worker-example-panel{min-width:0}
+.fees-estimator-panel .panel-head p,.worker-example-panel .panel-head p{font-size:9px;color:#899694;margin:4px 0 0}
+.fees-breakdown{display:grid;gap:0;margin-top:10px;border:1px solid #E4E9E6}
+.fees-breakdown>div{display:flex;justify-content:space-between;gap:12px;padding:11px 12px;border-bottom:1px solid #EEF1EF;font-size:10px;color:#687573}
+.fees-breakdown>div:last-child{border-bottom:0}
+.fees-breakdown strong{font:800 12px Manrope;color:#334441}
+.fees-breakdown .fees-total{background:#E5FAF8;color:#007D79}
+.fees-breakdown .fees-total strong{font-size:16px;color:#007D79}
+.fees-formula{font-size:9px;line-height:1.6;color:#87928F;margin:11px 0 0}
+.worker-example-gross,.worker-example-line,.worker-example-net{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #EEF1EF;color:#667572;font-size:10px}
+.worker-example-gross strong{font:800 15px Manrope;color:#334441}
+.worker-example-line strong{font:700 11px Manrope;color:#B65C2B}
+.worker-example-net{display:grid;grid-template-columns:1fr auto;background:#FFFCF3;padding:13px;border:1px solid #F0E7CD;margin-top:12px}
+.worker-example-net>span{font-size:10px;color:#687573}
+.worker-example-net>strong{font:800 23px Manrope;color:#007D79}
+.worker-example-net small{grid-column:1/-1;font-size:8px;color:#84918E}
+.fees-payment-panel{margin-bottom:22px}
+.fees-payment-panel .panel-head p{font-size:9px;color:#899694;margin:4px 0 0}
+.payment-method-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:15px}
+.payment-method{display:flex;align-items:center;gap:9px;padding:12px;border:1px solid #E4E9E6;background:#fff;min-width:0}
+.payment-method-mark{width:32px;height:32px;display:grid;place-items:center;flex:none;background:#FCEFC3;color:#815324;font:900 16px Manrope}
+.payment-method-mark.bkash{background:#FFF0E9;color:#C63800}
+.payment-method-mark.nagad{background:#FCEFC3;color:#98632A}
+.payment-method-mark.rocket{background:#F1EAF8;color:#6848A2}
+.payment-method-mark.bank{background:#E5FAF8;color:#007D79}
+.payment-method-mark.bank svg{width:16px}
+.payment-method strong{display:block;font:800 10px Manrope;color:#334441}
+.payment-method small{display:block;font-size:8px;color:#899694;margin-top:3px}
+.fees-manual-note{display:flex;gap:9px;align-items:flex-start}
+.fees-manual-note svg{width:15px;height:15px;flex:none;color:#007D79}
+.fees-workflow-section{margin-top:34px}
+.fees-workflow-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.fees-workflow-step{position:relative;padding:16px;border:1px solid #E4E9E6;background:#fff;min-width:0}
+.fees-workflow-step>span{display:inline-block;color:#C5D1CC;font:800 22px Manrope;margin-bottom:12px}
+.fees-workflow-step>svg{display:block;width:20px;height:20px;color:#008F89;margin-bottom:10px}
+.fees-workflow-step h3{font:800 11px Manrope;color:#202B2B;margin:0 0 6px}
+.fees-workflow-step p{font-size:9px;line-height:1.65;color:#687573;margin:0}
+.fees-note-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.fees-note{display:flex;align-items:flex-start;gap:10px;padding:14px;background:#E5FAF8;border:1px solid #BFE7E3}
+.fees-note>svg{width:17px;height:17px;flex:none;color:#007D79}
+.fees-note strong{font:800 10px Manrope;color:#245B57}
+.fees-note p{font-size:9px;line-height:1.6;color:#5B7773;margin:4px 0 0}
+html[data-theme="dark"] .marketplace-filters,html[data-theme="dark"] .task-detail-stats>div,html[data-theme="dark"] .worker-example-net,html[data-theme="dark"] .fees-workflow-step,html[data-theme="dark"] .fees-intro-card,html[data-theme="dark"] .payment-method,html[data-theme="dark"] .fees-breakdown{background:#1C302E!important;border-color:#36514D!important}
+html[data-theme="dark"] .marketplace-search,html[data-theme="dark"] .filter-control select,html[data-theme="dark"] .pagination-link,html[data-theme="dark"] .pagination-number{background:#203B37!important;border-color:#405B56!important;color:#E7F2EF!important}
+html[data-theme="dark"] .marketplace-search input,html[data-theme="dark"] .task-description,html[data-theme="dark"] .task-detail-top h2,html[data-theme="dark"] .task-detail-stats strong,html[data-theme="dark"] .task-claim-body h3,html[data-theme="dark"] .task-claim-panel h3,html[data-theme="dark"] .fees-intro-card strong,html[data-theme="dark"] .fees-workflow-step h3,html[data-theme="dark"] .payment-method strong{color:#F1F7F6!important}
+html[data-theme="dark"] .filter-control>span,html[data-theme="dark"] .browse-result-bar,html[data-theme="dark"] .result-range,html[data-theme="dark"] .task-heading-block p,html[data-theme="dark"] .task-instructions,html[data-theme="dark"] .task-claim-body p,html[data-theme="dark"] .task-claim-panel p,html[data-theme="dark"] .task-checklist p,html[data-theme="dark"] .fees-intro-card p,html[data-theme="dark"] .fees-workflow-step p,html[data-theme="dark"] .payment-method small,html[data-theme="dark"] .fees-note p{color:#BDCFCA!important}
+html[data-theme="dark"] .browse-result-bar strong,html[data-theme="dark"] .task-heading-block h1,html[data-theme="dark"] .fees-breakdown strong,html[data-theme="dark"] .worker-example-gross strong{color:#F1F7F6!important}
+html[data-theme="dark"] .task-detail-reward{background:#1D4541;border-color:#365E58}
+html[data-theme="dark"] .task-detail-reward strong,html[data-theme="dark"] .fees-breakdown .fees-total strong,html[data-theme="dark"] .worker-example-net>strong{color:#75DDD6!important}
+html[data-theme="dark"] .task-status-step{background:#203331;border-color:#36514D;color:#AFC1BC}
+html[data-theme="dark"] .task-status-step.is-done{background:#1D4541;border-color:#43756E;color:#8AE2DC}
+html[data-theme="dark"] .task-status-step.is-done span{background:#00CEC8;color:#123332}
+html[data-theme="dark"] .task-claim-panel{background:#233A34!important;border-color:#45645C!important}
+html[data-theme="dark"] .task-checklist svg{color:#75DDD6}
+html[data-theme="dark"] .related-task-section{background:#142221;border-color:#36514D}
+html[data-theme="dark"] .fees-breakdown>div{border-color:#36514D;color:#BDCFCA}
+html[data-theme="dark"] .fees-breakdown .fees-total{background:#1D4541}
+html[data-theme="dark"] .worker-example-line,html[data-theme="dark"] .worker-example-gross,html[data-theme="dark"] .worker-example-net{border-color:#36514D;color:#BDCFCA}
+html[data-theme="dark"] .fees-note{background:#1D4541;border-color:#365E58}
+html[data-theme="dark"] .fees-note strong{color:#D8F1EE}
+html[data-theme="dark"] .fees-manual-note{background:#203B37!important;color:#D4E3D9!important}
+@media(max-width:1000px){.marketplace-filters{grid-template-columns:1fr 1fr 1fr}.marketplace-search{grid-column:1/-1}.marketplace-apply{width:100%}.fees-calculator-grid{grid-template-columns:1fr}.fees-workflow-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.task-detail-top{grid-template-columns:1fr}.task-detail-reward{width:100%;min-width:0}.task-detail-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.task-claim-body{align-items:flex-start;flex-direction:column}.task-claim-body form,.task-claim-body .btn{width:100%}.payment-method-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fees-note-grid{grid-template-columns:1fr}}
+@media(max-width:520px){.marketplace-filters{grid-template-columns:1fr 1fr;padding:11px}.marketplace-search{grid-column:1/-1}.filter-control:last-of-type{grid-column:1/-1}.marketplace-apply{grid-column:1/-1}.browse-result-bar{align-items:flex-start;flex-direction:column;gap:8px}.result-range{display:block;margin-top:3px}.marketplace-pagination{gap:6px}.pagination-link{font-size:0;padding:0 8px}.pagination-link svg{width:15px;height:15px}.pagination-number{min-width:29px;height:30px;padding:0 7px}.task-detail-cover{height:160px}.task-status-steps{grid-template-columns:1fr}.fees-intro-grid,.fees-note-grid{grid-template-columns:1fr}.fees-workflow-grid{grid-template-columns:1fr}.payment-method-grid{grid-template-columns:1fr 1fr}}
