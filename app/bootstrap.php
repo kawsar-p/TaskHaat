@@ -70,7 +70,7 @@ if (!headers_sent()) {
     header('X-Permitted-Cross-Domain-Policies: none');
     header('Cache-Control: no-store, private, max-age=0');
     header('Pragma: no-cache');
-    header("Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: https://images.unsplash.com https://images.seeklogo.com https://mail.thefinancialexpress.com.bd https://upload.wikimedia.org; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'");
+    header("Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: https://images.unsplash.com https://images.seeklogo.com https://tasks.care https://upload.wikimedia.org; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'");
     if ($secureRequest && APP_ENV !== 'local') {
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     }
