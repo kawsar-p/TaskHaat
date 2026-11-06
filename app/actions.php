@@ -529,6 +529,82 @@ function process_post(PDO $pdo): void {
                 $st=$pdo->prepare('SELECT name,is_active FROM categories WHERE id=?');$st->execute([$id]);$category=$st->fetch();if(!$category)throw new RuntimeException('Category not found.');
                 $pdo->beginTransaction();$pdo->prepare('UPDATE categories SET is_active=? WHERE id=?')->execute([$active,$id]);audit($pdo,(int)$admin['id'],$active?'category.activated':'category.deactivated','category',$id,['name'=>$category['name']]);$pdo->commit();flash('success',$active?'Category activated.':'Category deactivated. Existing campaigns are retained.');redirect('dashboard',['tab'=>'categories']);
             }
+            case 'admin_create_user': {
+                $admin=require_role($pdo,'admin');
+                $first=trim((string)($_POST['first_name']??''));$last=trim((string)($_POST['last_name']??''));
+                $email=lower_text(trim((string)($_POST['email']??'')));$phone=trim((string)($_POST['phone']??''));
+                $type=(string)($_POST['user_type']??'worker');$password=(string)($_POST['password']??'');
+                $country=trim((string)($_POST['country']??'Bangladesh'));$district=trim((string)($_POST['district']??''));
+                if(text_length($first)<2||text_length($first)>80||text_length($last)<2||text_length($last)>80)throw new RuntimeException('First and last name must each contain 2–80 characters.');
+                if(!filter_var($email,FILTER_VALIDATE_EMAIL)||strlen($email)>190)throw new RuntimeException('Enter a valid email address.');
+                if($phone!==''&&!preg_match('/^[0-9+ -]{8,16}$/',$phone))throw new RuntimeException('Enter a valid phone number (8–16 digits, spaces, + or hyphens).');
+                if(!in_array($type,['worker','publisher','both'],true))throw new RuntimeException('Choose Worker, Publisher or Both. Admin accounts cannot be created from this form.');
+                if(strlen($password)<10||strlen($password)>200)throw new RuntimeException('Initial password must contain at least 10 characters.');
+                if(!isset($_POST['terms_confirmed']))throw new RuntimeException('Confirm that the user has accepted the TaskHaat terms and prohibited-task rules.');
+                if($country===''||text_length($country)>100||text_length($district)>100)throw new RuntimeException('Enter a valid country and district.');
+                $pdo->beginTransaction();
+                $dupe=$pdo->prepare('SELECT id FROM users WHERE email=? LIMIT 1');$dupe->execute([$email]);if($dupe->fetch())throw new RuntimeException('This email address is already registered.');
+                if($phone!==''){$dupe=$pdo->prepare('SELECT id FROM users WHERE phone=? LIMIT 1');$dupe->execute([$phone]);if($dupe->fetch())throw new RuntimeException('This phone number is already used by another account.');}
+                $st=$pdo->prepare("INSERT INTO users(first_name,last_name,email,phone,country,district,terms_accepted_at,password_hash,user_type,status) VALUES(?,?,?,?,?,?,NOW(),?,?,'active')");
+                $st->execute([$first,$last,$email,$phone!==''?$phone:null,$country,$district!==''?$district:null,password_hash($password,PASSWORD_DEFAULT),$type]);
+                $id=(int)$pdo->lastInsertId();
+                $pdo->prepare('INSERT INTO wallets(user_id) VALUES(?)')->execute([$id]);
+                notify($pdo,$id,'Your TaskHaat account is ready','An account has been created for you. Sign in with the email address and initial password provided by the TaskHaat administrator.','welcome',url('login'));
+                audit($pdo,(int)$admin['id'],'user.created','user',$id,['user_type'=>$type,'admin_confirmed_terms'=>true]);
+                $pdo->commit();flash('success','User account created with a new wallet. No email was sent by this build.');redirect('dashboard',['tab'=>'users']);
+            }
+            case 'admin_update_user': {
+                $admin=require_role($pdo,'admin');$id=(int)($_POST['user_id']??0);
+                if($id<1||$id===(int)$admin['id'])throw new RuntimeException('Invalid account selected.');
+                $first=trim((string)($_POST['first_name']??''));$last=trim((string)($_POST['last_name']??''));
+                $email=lower_text(trim((string)($_POST['email']??'')));$phone=trim((string)($_POST['phone']??''));
+                $country=trim((string)($_POST['country']??'Bangladesh'));$district=trim((string)($_POST['district']??''));
+                $city=trim((string)($_POST['city']??''));$occupation=trim((string)($_POST['occupation']??''));
+                $skills=trim((string)($_POST['skills']??''));$organization=trim((string)($_POST['organization']??''));
+                $website=trim((string)($_POST['website']??''));$newPassword=(string)($_POST['new_password']??'');
+                if(text_length($first)<2||text_length($first)>80||text_length($last)<2||text_length($last)>80)throw new RuntimeException('First and last name must each contain 2–80 characters.');
+                if(!filter_var($email,FILTER_VALIDATE_EMAIL)||strlen($email)>190)throw new RuntimeException('Enter a valid email address.');
+                if($phone!==''&&!preg_match('/^[0-9+ -]{8,16}$/',$phone))throw new RuntimeException('Enter a valid phone number (8–16 digits, spaces, + or hyphens).');
+                foreach([[$country,100,'Country'],[$district,100,'District'],[$city,120,'City'],[$occupation,120,'Occupation'],[$organization,180,'Organization']] as [$value,$max,$label])if(text_length($value)>$max)throw new RuntimeException($label.' is too long.');
+                if(text_length($skills)>2000)throw new RuntimeException('Skills must be 2,000 characters or fewer.');
+                if($website!==''&&(!filter_var($website,FILTER_VALIDATE_URL)||!preg_match('/^https?:\/\//i',$website)))throw new RuntimeException('Enter a valid http or https portfolio URL.');
+                if($newPassword!==''&&(strlen($newPassword)<10||strlen($newPassword)>200))throw new RuntimeException('A new password must contain at least 10 characters.');
+                $pdo->beginTransaction();
+                $st=$pdo->prepare('SELECT id,email,phone,user_type,status FROM users WHERE id=? FOR UPDATE');$st->execute([$id]);$target=$st->fetch();
+                if(!$target||$target['user_type']==='admin')throw new RuntimeException('Administrator or missing accounts are protected.');
+                $dupe=$pdo->prepare('SELECT id FROM users WHERE email=? AND id<>? LIMIT 1');$dupe->execute([$email,$id]);if($dupe->fetch())throw new RuntimeException('This email address is already used by another account.');
+                if($phone!==''){$dupe=$pdo->prepare('SELECT id FROM users WHERE phone=? AND id<>? LIMIT 1');$dupe->execute([$phone,$id]);if($dupe->fetch())throw new RuntimeException('This phone number is already used by another account.');}
+                $sql='UPDATE users SET first_name=?,last_name=?,email=?,phone=?,country=?,district=?,city=?,occupation=?,skills=?,organization=?,website=?';
+                $params=[$first,$last,$email,$phone!==''?$phone:null,$country,$district!==''?$district:null,$city!==''?$city:null,$occupation!==''?$occupation:null,$skills!==''?$skills:null,$organization!==''?$organization:null,$website!==''?$website:null];
+                if($newPassword!==''){$sql.=',password_hash=?';$params[]=password_hash($newPassword,PASSWORD_DEFAULT);}
+                $sql.=' WHERE id=?';$params[]=$id;$pdo->prepare($sql)->execute($params);
+                audit($pdo,(int)$admin['id'],'user.profile_updated','user',$id,['password_reset'=>$newPassword!=='','previous_email'=>$target['email'],'new_email'=>$email]);
+                notify($pdo,$id,'Your account profile was updated','A TaskHaat administrator updated your account details. Contact support if you do not recognise this change.','account');
+                $pdo->commit();flash('success','User profile updated.'.($newPassword!==''?' Password reset was saved.':''));redirect('dashboard',['tab'=>'users']);
+            }
+            case 'admin_delete_user': {
+                $admin=require_role($pdo,'admin');$id=(int)($_POST['user_id']??0);
+                if($id<1||$id===(int)$admin['id'])throw new RuntimeException('Invalid account selected.');
+                $pdo->beginTransaction();
+                $st=$pdo->prepare('SELECT id,first_name,last_name,email,user_type FROM users WHERE id=? FOR UPDATE');$st->execute([$id]);$target=$st->fetch();
+                if(!$target||$target['user_type']==='admin')throw new RuntimeException('Administrator or missing accounts are protected.');
+                $historyChecks=[
+                    ['campaigns','publisher_id','campaigns'],
+                    ['claims','worker_id','worker claims'],
+                    ['wallet_transactions','user_id','wallet transactions'],
+                    ['withdrawals','user_id','withdrawal requests'],
+                    ['manual_deposit_requests','publisher_id','deposit requests']
+                ];
+                foreach($historyChecks as [$table,$column,$label]){
+                    $check=$pdo->prepare('SELECT COUNT(*) FROM '.$table.' WHERE '.$column.'=?');$check->execute([$id]);
+                    if((int)$check->fetchColumn()>0)throw new RuntimeException('This account has '.$label.' history. It cannot be deleted; suspend it to prevent further access while preserving records.');
+                }
+                $st=$pdo->prepare('SELECT available_balance,deposit_balance,reserved_balance,withdrawal_hold_balance FROM wallets WHERE user_id=? FOR UPDATE');$st->execute([$id]);$wallet=$st->fetch();
+                if($wallet&&array_sum(array_map('floatval',$wallet))>0.001)throw new RuntimeException('This account has a non-zero wallet balance. Reconcile the wallet before deletion.');
+                $pdo->prepare('DELETE FROM users WHERE id=?')->execute([$id]);
+                audit($pdo,(int)$admin['id'],'user.deleted','user',$id,['email'=>$target['email'],'user_type'=>$target['user_type'],'reason'=>'No campaign, claim, wallet, deposit or withdrawal history']);
+                $pdo->commit();flash('success','Inactive account permanently deleted. Associated notifications were removed; support and audit history were retained without a user link.');redirect('dashboard',['tab'=>'users']);
+            }
             case 'admin_toggle_user': {
                 $admin=require_role($pdo,'admin');$id=(int)($_POST['user_id']??0);$status=(string)($_POST['status']??'');
                 if(!in_array($status,['active','suspended'],true)||$id<1||$id===(int)$admin['id'])throw new RuntimeException('Invalid account status change.');

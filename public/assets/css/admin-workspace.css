@@ -198,3 +198,26 @@ html[data-theme="dark"] .admin-category-table td strong{color:#F1F7F6}
 html[data-theme="dark"] .admin-category-edit-form{background:#1C302E;border-color:#36514D;box-shadow:0 12px 30px rgba(0,0,0,.35)}
 html[data-theme="dark"] .admin-category-edit-form label{color:#C1D2D0}
 html[data-theme="dark"] .admin-category-edit-form input{background:#172A28;color:#F1F7F6;border-color:#47746A}
+
+/* Admin user CRUD */
+.admin-user-actions{display:grid;gap:6px;min-width:110px}
+.admin-user-actions form{margin:0}
+.admin-user-edit{position:relative}
+.admin-user-edit>summary{list-style:none;display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.admin-user-edit>summary::-webkit-details-marker{display:none}
+.admin-user-edit[open]{z-index:10}
+.admin-user-edit-form{position:absolute;right:0;top:calc(100% + 6px);z-index:12;width:min(490px,82vw);padding:14px;border:1px solid #DCE7E2;background:#fff;box-shadow:0 14px 34px rgba(20,55,51,.18);display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.admin-user-edit-form label,.admin-user-create-grid label{display:grid;gap:4px;font-size:9px;font-weight:700;color:#596765;min-width:0}
+.admin-user-edit-form input,.admin-user-edit-form textarea,.admin-user-create-grid input,.admin-user-create-grid select{width:100%;min-width:0;padding:7px 8px;border:1px solid #DCE5E1;background:#fff;color:#202B2B;font:inherit;font-size:10px}
+.admin-user-wide{grid-column:1/-1}
+.admin-user-create{margin-top:20px;padding:16px;border:1px solid #DCE5E1;background:#FCFEFD}
+.admin-user-create h4{margin:5px 0;font:800 14px Manrope;color:#202B2B}
+.admin-user-create p{margin:0 0 12px;color:#71807B;font-size:10px}
+.admin-user-create-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.admin-user-consent{display:flex!important;align-items:center;gap:8px;grid-column:span 2}
+.admin-user-consent input{width:16px;height:16px;accent-color:#00A9A3;flex:0 0 auto}
+html[data-theme="dark"] .admin-user-edit-form,html[data-theme="dark"] .admin-user-create{background:#1C302E;border-color:#36514D}
+html[data-theme="dark"] .admin-user-edit-form label,html[data-theme="dark"] .admin-user-create-grid label,html[data-theme="dark"] .admin-user-create h4{color:#C1D2D0}
+html[data-theme="dark"] .admin-user-edit-form input,html[data-theme="dark"] .admin-user-edit-form textarea,html[data-theme="dark"] .admin-user-create-grid input,html[data-theme="dark"] .admin-user-create-grid select{background:#172A28;color:#F1F7F6;border-color:#47746A}
+@media(max-width:900px){.admin-user-create-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.admin-user-create-grid{grid-template-columns:1fr}.admin-user-consent{grid-column:auto}.admin-user-edit-form{position:fixed;left:8vw;right:8vw;top:15vh;width:auto;max-height:70vh;overflow:auto}}
