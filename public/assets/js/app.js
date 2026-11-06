@@ -28,16 +28,25 @@
 
   const restoreRefreshPosition = () => {
     if (refreshScrollY === null) return;
+    // Capture the saved position before any delayed callback runs.
+    const targetY = Math.max(0, refreshScrollY);
     const restore = () => {
       const maximum = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-      window.scrollTo(0, Math.min(refreshScrollY, maximum));
+      window.scrollTo({top: Math.min(targetY, maximum), left: 0, behavior: 'auto'});
     };
+    const finish = () => {
+      restore();
+      try { sessionStorage.removeItem(scrollStorageKey); } catch (_) {}
+      refreshScrollY = null;
+      history.scrollRestoration = 'auto';
+    };
+
+    // Reapply after layout, web fonts and asynchronously decoded imagery settle.
     requestAnimationFrame(() => requestAnimationFrame(restore));
-    // A second instant correction covers late font/image layout without animated jumping.
     window.setTimeout(restore, 120);
-    try { sessionStorage.removeItem(scrollStorageKey); } catch (_) {}
-    refreshScrollY = null;
-    history.scrollRestoration = 'auto';
+    window.setTimeout(restore, 320);
+    window.setTimeout(finish, 650);
+    if (document.fonts?.ready) document.fonts.ready.then(restore).catch(() => {});
   };
   if (document.readyState === 'complete') restoreRefreshPosition();
   else window.addEventListener('load', restoreRefreshPosition, {once:true});
